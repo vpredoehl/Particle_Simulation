@@ -1,0 +1,7 @@
+#!/bin/bash
+#SBATCH -J particle-serial
+#SBATCH -o particle-serial.stdout
+#SBATCH -n 1
+#SBATCH -p batch  
+#SBATCH -t 00:10:00
+./serial -n 1000 -o serial.txt

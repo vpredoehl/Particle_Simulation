@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -J particle-mpi16
+#SBATCH -o particle-mpi16.stdout
+#SBATCH -N 16 -n 16         
+#SBATCH -p batch
+#SBATCH -t 00:10:00     
+
+module load compiler/intel
+module load openmpi
+
+mpirun ./mpi -n 1000 -o mpi.txt

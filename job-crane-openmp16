@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -J particle-openmp16
+#SBATCH -o particle-openmp16.stdout
+#SBATCH -n 16         
+#SBATCH -p batch
+#SBATCH -t 00:10:00     
+
+module load compiler/intel
+
+export OMP_NUM_THREADS=16
+./openmp -n 1000 -o openmp.txt
