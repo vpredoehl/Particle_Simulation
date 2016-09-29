@@ -11,7 +11,7 @@ void main()
 	omp_set_num_threads(4);
 	step = 1.0 / (double) num_steps;
 
-#pragma omp parallel for shared(sum), private(x,i)   /* i private by default? */
+#pragma omp parallel for reduction(+:sum), private(x,i)   /* i private by default? */
 	for(i=0; i<num_steps; i++)
 	{
 		int id = omp_get_thread_num();
