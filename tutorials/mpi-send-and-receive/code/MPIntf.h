@@ -1,10 +1,17 @@
 namespace CSE856
 {
-	class MPI
+	class MPIntf
 	{
 		int world_rank, world_size;
 
-		MPI
+	public:
+		MPIntf();
+		~MPIntf();
+
+			// accessor methods
+		int rank() const	{	return world_rank;	}
+		int size() const	{	return world_size;	}
+
 	};
 
 }

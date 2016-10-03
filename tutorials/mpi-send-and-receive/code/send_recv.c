@@ -10,9 +10,6 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
-#include "MPIntf.h"
-
 
 int main(int argc, char** argv) {
   // Initialize the MPI environment
