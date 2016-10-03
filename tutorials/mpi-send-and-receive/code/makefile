@@ -1,9 +1,11 @@
 EXECS=send_recv #ping_pong ring
-MPICC?=mpicc -std=c++11
+MPICC?=mpicc -std=c++11 -g
 
 all: ${EXECS}
 
-send_recv: send_recv.cpp MPIntf.cpp
+MPIntf.o: MPIntf.cpp MPIntf.h
+
+send_recv: send_recv.cpp MPIntf.o
 	${MPICC} -o send_recv send_recv.cpp MPIntf.cpp
 
 #ping_pong: ping_pong.c
