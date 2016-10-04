@@ -2,11 +2,7 @@ namespace CSE856
 {
 	class MPIntf
 	{
-//                template<class T> class CommType;
-                typedef  void (*ParallelTask)(int);
-	
         	int world_rank, world_size;
-                ParallelTask parallelTask;
 
 	public:
 		MPIntf();
@@ -16,15 +12,6 @@ namespace CSE856
 		int rank() const	{	return world_rank;	}
 		int size() const	{	return world_size;	}
 
-                // stream modifier to set parallel task
-            class setparalleltask
-            {
-                ParallelTask task;
-            public:
-                setparalleltask(ParallelTask t) {   task = t;   }
-                operator ParallelTask() const {   return task;    }
-            };
-            
                 // wrapper class for communication types
             template<class T>
             class CommType
@@ -42,6 +29,23 @@ namespace CSE856
             
             template<class T>   MPIntf& operator<<(const CommType<T> &v);
             template<class T>   MPIntf& operator>>(CommType<T> &v);
+            
+
+        private:
+            typedef  void (*ParallelTask)(int);
+            ParallelTask parallelTask;
+                // stream modifier to set parallel task
+                
+        public:
+            class setparalleltask
+            {
+                ParallelTask task;
+            public:
+                setparalleltask(ParallelTask t) {   task = t;   }
+                operator ParallelTask() const {   return task;    }
+            };
+            
+
             MPIntf& operator>>(setparalleltask &t)
             {
                 parallelTask = t;
