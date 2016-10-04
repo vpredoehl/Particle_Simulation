@@ -13,6 +13,11 @@
  
 #include "MPIntf.h"
 
+void PrintValue(int v)
+{
+    std::cout << "Process 1 received number " << v << " from process 0\n";
+}
+
 int main(int argc, char** argv) {
 	CSE856::MPIntf mp;
 
@@ -29,11 +34,10 @@ printf("World rank: %i\n", world_rank);
   //}
 
     CSE856::MPIntf::CommType<int> number;
-
+    CSE856::MPIntf::setparalleltask rt(PrintValue);
     number = -1;
     mp << number;
-    mp >> number;
+    mp >> rt >>  number;
 
-    printf("Process 1 received number %d from process 0\n", number.value());
     return 0;
 }

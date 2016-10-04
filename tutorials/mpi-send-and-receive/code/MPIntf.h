@@ -2,10 +2,11 @@ namespace CSE856
 {
 	class MPIntf
 	{
-                typedef  void (*ResultTask)(void);
+//                template<class T> class CommType;
+                typedef  void (*ParallelTask)(int);
 	
         	int world_rank, world_size;
-                ResultTask *resultTask;
+                ParallelTask parallelTask;
 
 	public:
 		MPIntf();
@@ -15,8 +16,17 @@ namespace CSE856
 		int rank() const	{	return world_rank;	}
 		int size() const	{	return world_size;	}
 
-            // wrapper class for communication types
-	template<class T>
+                // stream modifier to set parallel task
+            class setparalleltask
+            {
+                ParallelTask task;
+            public:
+                setparalleltask(ParallelTask t) {   task = t;   }
+                operator ParallelTask() const {   return task;    }
+            };
+            
+                // wrapper class for communication types
+            template<class T>
             class CommType
             {
                 T v;
@@ -32,9 +42,10 @@ namespace CSE856
             
             template<class T>   MPIntf& operator<<(const CommType<T> &v);
             template<class T>   MPIntf& operator>>(CommType<T> &v);
-            MPIntf& operator>>(setresulttask &t)
+            MPIntf& operator>>(setparalleltask &t)
             {
-                resultTask = t;
+                parallelTask = t;
+                return *this;
             }
 	};
 
@@ -52,7 +63,14 @@ CSE856::MPIntf& CSE856::MPIntf::operator<<(const CSE856::MPIntf::CommType<T> &v)
 template<class T>
 CSE856::MPIntf& CSE856::MPIntf::operator>>(CSE856::MPIntf::CommType<T> &v)
 {
-    if(world_rank != 0) MPI_Recv(&v, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);            
+    if(world_rank != 0)
+    {
+        MPI_Recv(&v, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        
+            // run task 
+        if(parallelTask)
+            (*parallelTask)(v);
+    }
     return *this;
 }
 
