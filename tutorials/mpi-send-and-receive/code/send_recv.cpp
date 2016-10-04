@@ -14,10 +14,10 @@
 #include "MPIntf.h"
 
 int main(int argc, char** argv) {
-	CSE856::MPIntf p;
+	CSE856::MPIntf mp;
 
-	int world_size = p.size();
-	int world_rank = p.rank();
+	int world_size = mp.size();
+	int world_rank = mp.rank();
 
 printf("World size: %i\n", world_size);
 printf("World rank: %i\n", world_rank);
@@ -29,13 +29,11 @@ printf("World rank: %i\n", world_rank);
   //}
 
     CSE856::MPIntf::CommType<int> number;
-//  int number;
-  if (world_rank == 0) {
-    // If we are rank 0, set the number to -1 and send it to process 1
+
     number = -1;
-    MPI_Send(&number, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-  } else if (world_rank == 1) {
-    MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    mp << number;
+    mp >> number;
+
     printf("Process 1 received number %d from process 0\n", number.value());
-  }
+    return 0;
 }

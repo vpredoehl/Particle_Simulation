@@ -2,7 +2,10 @@ namespace CSE856
 {
 	class MPIntf
 	{
-		int world_rank, world_size;
+                typedef  void (*ResultTask)(void);
+	
+        	int world_rank, world_size;
+                ResultTask *resultTask;
 
 	public:
 		MPIntf();
@@ -26,7 +29,30 @@ namespace CSE856
                 
                 CommType& operator=(T v)    {   CommType::v = v;  return *this;   }
             };
+            
+            template<class T>   MPIntf& operator<<(const CommType<T> &v);
+            template<class T>   MPIntf& operator>>(CommType<T> &v);
+            MPIntf& operator>>(setresulttask &t)
+            {
+                resultTask = t;
+            }
 	};
 
-
 }
+
+
+// define template operators here to remove clutter from interface
+template<class T>
+CSE856::MPIntf& CSE856::MPIntf::operator<<(const CSE856::MPIntf::CommType<T> &v)
+{
+    if(world_rank == 0)    MPI_Send(&v, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    return *this;
+}
+
+template<class T>
+CSE856::MPIntf& CSE856::MPIntf::operator>>(CSE856::MPIntf::CommType<T> &v)
+{
+    if(world_rank != 0) MPI_Recv(&v, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);            
+    return *this;
+}
+
