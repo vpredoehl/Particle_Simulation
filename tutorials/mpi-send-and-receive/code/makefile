@@ -3,9 +3,7 @@ MPICC?=mpicc -std=c++11 -g
 
 all: ${EXECS}
 
-MPIntf.o: MPIntf.cpp MPIntf.h
-
-send_recv: send_recv.cpp MPIntf.o
+send_recv: send_recv.cpp MPIntf.cpp
 	${MPICC} -o send_recv send_recv.cpp MPIntf.cpp
 
 #ping_pong: ping_pong.c
@@ -15,4 +13,4 @@ send_recv: send_recv.cpp MPIntf.o
 #	${MPICC} -o ring ring.c
 
 clean:
-	rm -f ${EXECS}
+	rm -f ${EXECS} *.o
