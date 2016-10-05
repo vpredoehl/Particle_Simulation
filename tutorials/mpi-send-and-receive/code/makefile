@@ -3,7 +3,7 @@ MPICC?=mpicc -std=c++11 -g
 
 all: ${EXECS}
 
-send_recv: send_recv.cpp MPIntf.cpp
+send_recv: send_recv.cpp MPIntf.cpp MPIntf.h
 	${MPICC} -o send_recv send_recv.cpp MPIntf.cpp
 
 #ping_pong: ping_pong.c

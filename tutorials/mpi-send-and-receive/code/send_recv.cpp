@@ -34,10 +34,10 @@ printf("World rank: %i\n", world_rank);
   //}
 
     CSE856::MPIntf::CommType<int> number;
-    CSE856::MPIntf::setparalleltask rt(PrintValue);
+
     number = -1;
     mp << number;
-    mp >> rt >>  number;
+    mp >> CSE856::MPIntf::setparalleltask<int>(PrintValue) >>  number;
 
     return 0;
 }
