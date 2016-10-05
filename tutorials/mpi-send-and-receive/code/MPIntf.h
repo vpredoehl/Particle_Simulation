@@ -35,7 +35,7 @@ namespace CSE856
             template<class T>
             using ParallelTask = void(*)(T);
 
-            ParallelTask<int> parallelTask;
+            const void* parallelTask;
                 // stream modifier to set parallel task
                 
         public:
@@ -45,7 +45,7 @@ namespace CSE856
                 ParallelTask<T> task;
             public:
                 setparalleltask(ParallelTask<T> t) {   task = t;   }
-                operator ParallelTask<T>() const {   return task;    }
+                operator const void*() const {   return reinterpret_cast<const void*>(&task);    }
             };
             
 
@@ -76,7 +76,7 @@ CSE856::MPIntf& CSE856::MPIntf::operator>>(CSE856::MPIntf::CommType<T> &v)
         
             // run task 
         if(parallelTask)
-            (*parallelTask)(v);
+            (*reinterpret_cast<const ParallelTask<T>*>(parallelTask))(v);
     }
     return *this;
 }
