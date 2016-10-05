@@ -32,21 +32,24 @@ namespace CSE856
             
 
         private:
-            typedef  void (*ParallelTask)(int);
-            ParallelTask parallelTask;
+            template<class T>
+            using ParallelTask = void(*)(T);
+
+            ParallelTask<int> parallelTask;
                 // stream modifier to set parallel task
                 
         public:
-            class setparalleltask
+            
+            template<class T> class setparalleltask
             {
-                ParallelTask task;
+                ParallelTask<T> task;
             public:
-                setparalleltask(ParallelTask t) {   task = t;   }
-                operator ParallelTask() const {   return task;    }
+                setparalleltask(ParallelTask<T> t) {   task = t;   }
+                operator ParallelTask<T>() const {   return task;    }
             };
             
 
-            MPIntf& operator>>(setparalleltask &t)
+            template<class T> MPIntf& operator>>(const setparalleltask<T> &t)
             {
                 parallelTask = t;
                 return *this;
