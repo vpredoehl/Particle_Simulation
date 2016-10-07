@@ -4,6 +4,11 @@
 #include <math.h>
 #include "common.h"
 
+#include <vector>
+#include <list>
+#include <algorithm>
+
+using namespace std;
 //
 //  benchmarking program
 //
@@ -30,16 +35,19 @@ int main( int argc, char **argv )
     
     FILE *fsave = savename ? fopen( savename, "w" ) : NULL;
     FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
-
-    particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
+    
+    Mesh world {16,Bin{}};
     set_size( n );
-    init_particles( n, particles );
+    init_particles( n, world );
     
     //
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
 	
+  for_each(world.begin(), world.end(), 
+  [&](Bin &b)
+  {  
     for( int step = 0; step < NSTEPS; step++ )
     {
 	navg = 0;
@@ -48,18 +56,24 @@ int main( int argc, char **argv )
         //
         //  compute forces
         //
-        for( int i = 0; i < n; i++ )
-        {
-            particles[i].ax = particles[i].ay = 0;
-            for (int j = 0; j < n; j++ )
-				apply_force( particles[i], particles[j],&dmin,&davg,&navg);
-        }
+        
+                for_each(b.begin(), b.end(), 
+                [&,b](particle_t &p1)
+                {   
+                    p1.ax = p1.ay = 0;
+                    for_each(b.begin(), b.end(), 
+                    [&](const particle_t &p2)
+                    {
+                        apply_force( p1, p2 ,&dmin,&davg,&navg);
+                    });
+                    
+                });
+
  
         //
         //  move particles
         //
-        for( int i = 0; i < n; i++ ) 
-            move( particles[i] );		
+        for_each(b.begin(), b.end(), [](particle_t &p)   {   move(p);    });
 
         if( find_option( argc, argv, "-no" ) == -1 )
         {
@@ -76,9 +90,10 @@ int main( int argc, char **argv )
           //  save if necessary
           //
           if( fsave && (step%SAVEFREQ) == 0 )
-              save( fsave, n, particles );
+              save( fsave, n, world );
         }
     }
+  });
     simulation_time = read_timer( ) - simulation_time;
     
     printf( "n = %d, simulation time = %g seconds", n, simulation_time);
@@ -110,7 +125,6 @@ int main( int argc, char **argv )
     //
     if( fsum )
         fclose( fsum );    
-    free( particles );
     if( fsave )
         fclose( fsave );
     

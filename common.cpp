@@ -8,6 +8,8 @@
 #include <sys/time.h>
 #include "common.h"
 
+#include <algorithm>
+
 double size;
 
 //
@@ -47,7 +49,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, particle_t *p )
+void init_particles( int n, Mesh &p, short numBins )
 {
     srand48( time( NULL ) );
         
@@ -57,9 +59,13 @@ void init_particles( int n, particle_t *p )
     int *shuffle = (int*)malloc( n * sizeof(int) );
     for( int i = 0; i < n; i++ )
         shuffle[i] = i;
+        
+    short sideS = sqrt(numBins);
     
     for( int i = 0; i < n; i++ ) 
     {
+        particle_t newParticle;
+        
         //
         //  make sure particles are not spatially sorted
         //
@@ -70,14 +76,19 @@ void init_particles( int n, particle_t *p )
         //
         //  distribute particles evenly to ensure proper spacing
         //
-        p[i].x = size*(1.+(k%sx))/(1+sx);
-        p[i].y = size*(1.+(k/sx))/(1+sy);
+        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) / numBins;
+        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) / numBins;
 
+        short whichBin = x + y * sideS;
+        Bin &dropBin = p[whichBin];
+    
         //
         //  assign random velocities within a bound
         //
-        p[i].vx = drand48()*2-1;
-        p[i].vy = drand48()*2-1;
+        newParticle.vx = drand48()*2-1;
+        newParticle.vy = drand48()*2-1;
+
+        dropBin.push_front(newParticle);   
     }
     free( shuffle );
 }
@@ -85,7 +96,7 @@ void init_particles( int n, particle_t *p )
 //
 //  interact two particles
 //
-void apply_force( particle_t &particle, particle_t &neighbor , double *dmin, double *davg, int *navg)
+void apply_force( particle_t &particle, const particle_t &neighbor , double *dmin, double *davg, int *navg)
 {
 
     double dx = neighbor.x - particle.x;
@@ -146,7 +157,7 @@ void move( particle_t &p )
 //
 //  I/O routines
 //
-void save( FILE *f, int n, particle_t *p )
+void save( FILE *f, int n, const Mesh &world )
 {
     static bool first = true;
     if( first )
@@ -154,8 +165,15 @@ void save( FILE *f, int n, particle_t *p )
         fprintf( f, "%d %g\n", n, size );
         first = false;
     }
-    for( int i = 0; i < n; i++ )
-        fprintf( f, "%g %g\n", p[i].x, p[i].y );
+    for_each(world.begin(), world.end(),
+        [f](const Bin& b)
+        {
+            for_each(b.begin(), b.end(), 
+            [f](const particle_t &p)
+            {
+                fprintf( f, "%g %g\n", p.x, p.y );
+            });
+        });
 }
 
 //
