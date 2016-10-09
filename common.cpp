@@ -49,7 +49,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, Mesh &p, short numBins )
+void init_particles( int n, Mesh &p, short numRowBins, short numColBins )
 {
     srand48( time( NULL ) );
         
@@ -60,7 +60,6 @@ void init_particles( int n, Mesh &p, short numBins )
     for( int i = 0; i < n; i++ )
         shuffle[i] = i;
         
-    short sideS = sqrt(numBins);
     
     for( int i = 0; i < n; i++ ) 
     {
@@ -76,10 +75,10 @@ void init_particles( int n, Mesh &p, short numBins )
         //
         //  distribute particles evenly to ensure proper spacing
         //
-        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) / numBins;
-        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) / numBins;
+        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) * numRowBins / size;
+        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) * numColBins / size;
 
-        short whichBin = x + y * sideS;
+        short whichBin = x + y * numRowBins;
         Bin &dropBin = p[whichBin];
     
         //

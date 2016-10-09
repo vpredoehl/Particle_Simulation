@@ -28,6 +28,12 @@ typedef struct
   double ay;
 } particle_t;
 
+enum class GhostZoneRegion : char   
+{
+    topLeft, topRight, bottomLeft, bottomRight,
+    top, left, bottom, right
+};
+
 using Bin = std::list<particle_t>;
 using Mesh = std::vector<Bin>;
 
@@ -41,7 +47,7 @@ double read_timer( );
 //  simulation routines
 //
 void set_size( int n );
-void init_particles( int n, Mesh &p, short numBins = 1 /* 4,9 16 */ );
+void init_particles( int n, Mesh &p, short numRowBins = 1, short numColBins = 1 );
 void apply_force( particle_t &particle, const particle_t &neighbor , double *dmin, double *davg, int *navg);
 void move( particle_t &p );
 

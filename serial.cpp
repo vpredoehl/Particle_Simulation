@@ -29,6 +29,20 @@ int main( int argc, char **argv )
     }
     
     int n = read_int( argc, argv, "-n", 1000 );
+    int numThreads = 2, numRowBins, numColBins;
+    
+        // determine mesh size
+    switch(numThreads)
+    {
+        case 16: numRowBins = 4; numColBins = 4; break;
+        case 8: numRowBins = 4; numColBins = 2; break;
+        case 4: numRowBins = 2; numColBins = 2; break;
+        case 2: numRowBins = 2; numColBins = 1; break;
+        case 1:            
+            // fall thru
+        default:
+            numRowBins = numColBins = 1;
+    }
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
@@ -36,9 +50,9 @@ int main( int argc, char **argv )
     FILE *fsave = savename ? fopen( savename, "w" ) : NULL;
     FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
     
-    Mesh world {16,Bin{}};
+    Mesh world { numThreads, Bin{} };
     set_size( n );
-    init_particles( n, world );
+    init_particles( n, world, numRowBins, numColBins );
     
     //
     //  simulate a number of time steps
@@ -118,8 +132,14 @@ int main( int argc, char **argv )
     // Printing summary data
     //
     if( fsum) 
+    {
+        short numP = 0;
+        
         fprintf(fsum,"%d %g\n",n,simulation_time);
- 
+        for_each(world.begin(), world.end(),
+            [fsum, &numP](const Bin &b)    {           fprintf(fsum,"Bin Size: %i\n",b.size()); numP += b.size();  });
+        fprintf(fsum, "Total particles in bins: %i", numP);
+    }
     //
     // Clearing space
     //
