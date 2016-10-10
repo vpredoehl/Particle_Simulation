@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <map>
 
 
 
@@ -33,6 +34,16 @@ enum class GhostZoneRegion : char
     topLeft, topRight, bottomLeft, bottomRight,
     top, left, bottom, right
 };
+using WallRegion = GhostZoneRegion;
+using GZR = GhostZoneRegion;    // shorthand qualifier
+using WR = GhostZoneRegion;    // shorthand qualifier
+
+using NeighborRegion = std::vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
+using WallRegionList = std::pair<short, std::vector<WallRegion>>;
+using BinNeighbor = std::map<short, std::vector<NeighborRegion>>;    // neighbor regions by number of bins    
+using BinWalls = std::map<short, std::vector<WallRegionList>>;
+
+
 
 using Bin = std::list<particle_t>;
 using Mesh = std::vector<Bin>;

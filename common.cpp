@@ -11,6 +11,55 @@
 #include <algorithm>
 
 double size;
+short numThreads = 2;
+short numRowBins, numColBins;
+
+BinWalls walls
+        {
+            { 2, {{0, {WR::top, WR::left, WR::bottom}}, {1, {WR::top, WR::right, WR::bottom}}}},
+            { 4, {
+                    {0, {WR::top, WR::left}},
+                    {1, {WR::top, WR::right}}, 
+                    {2, {WR::left, WR::bottom}}, 
+                    {3, {WR::bottom, WR::right}}
+                 }
+            }
+        };
+        
+
+BinNeighbor neighborBin
+  {
+    { 2,        // ghost zones for two bins
+                // the following vector is enumerated in bin order
+      {
+        {   // neighbor regions for bin 0
+            {1, GhostZoneRegion::left}    
+        },
+        {   // neighbor regions for bin 1
+            {0, GZR::right}
+        }
+      }
+    },
+    { 4,        // ghost zones for four bins
+                // the following vector is enumerated in bin order
+      {    
+        {   // neighbor regions for bin 0
+            {1, GZR::left}, {2, GZR::top}, {3,GZR::topLeft}
+        },
+        {   // neighbor regions for bin 1
+            {0, GZR::right}, {2,GZR::topRight}, {3, GZR::top}
+        },
+        {   // neighbor regions for bin 2
+            {0, GZR::bottom}, {1, GZR::bottomLeft}, {3, GZR::left}
+        },
+        {   // neighbor regions for bin 3
+            {0, GZR::bottomRight}, {1, GZR::bottom}, {2, GZR::right}
+        }
+      }
+    }
+  };
+
+
 
 //
 //  tuned constants
@@ -49,7 +98,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, Mesh &p, short numRowBins, short numColBins )
+void init_particles( int n, Mesh &p, short binsPerRow, short binsPerCol )
 {
     srand48( time( NULL ) );
         
@@ -75,12 +124,16 @@ void init_particles( int n, Mesh &p, short numRowBins, short numColBins )
         //
         //  distribute particles evenly to ensure proper spacing
         //
-        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) * numRowBins / size;
-        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) * numColBins / size;
+        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) * binsPerRow / size;
+        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) * binsPerCol / size;
 
-        short whichBin = x + y * numRowBins;
+        short whichBin = x + y * binsPerRow;
+        float leftWall = x * size / binsPerRow;
+        float rightWall = (x+1) * size / binsPerRow;
+        float topWall = y * size / binsPerCol;
+        float bottomWall = (y+1) * size/binsPerCol;
         Bin &dropBin = p[whichBin];
-    
+
         //
         //  assign random velocities within a bound
         //

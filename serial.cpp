@@ -4,8 +4,6 @@
 #include <math.h>
 #include "common.h"
 
-#include <vector>
-#include <list>
 #include <algorithm>
 
 using namespace std;
@@ -29,8 +27,8 @@ int main( int argc, char **argv )
     }
     
     int n = read_int( argc, argv, "-n", 1000 );
-    int numThreads = 2, numRowBins, numColBins;
-    
+    extern short numRowBins, numColBins, numThreads;
+
         // determine mesh size
     switch(numThreads)
     {
@@ -138,7 +136,7 @@ int main( int argc, char **argv )
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
             [fsum, &numP](const Bin &b)    {           fprintf(fsum,"Bin Size: %i\n",b.size()); numP += b.size();  });
-        fprintf(fsum, "Total particles in bins: %i", numP);
+        fprintf(fsum, "Total particles in bins: %i\n", numP);
     }
     //
     // Clearing space
