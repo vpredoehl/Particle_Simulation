@@ -142,6 +142,7 @@ int main( int argc, char **argv )
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
             [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i\n",s); numP += s;  });
+
         fprintf(fsum, "Total particles in bins: %i\n", numP);
     }
     //

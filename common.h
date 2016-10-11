@@ -50,6 +50,7 @@ using Bin = struct
 {
     forward_list<particle_t> content;
 };
+
 using Mesh = vector<Bin>;
 
 
