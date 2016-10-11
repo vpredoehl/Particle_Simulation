@@ -2,10 +2,12 @@
 #define __CS456_COMMON_H__
 
 #include <vector>
-#include <list>
+#include <forward_list>
 #include <map>
 
-
+using std::map;
+using std::vector;
+using std::forward_list;
 
 inline int min( int a, int b ) { return a < b ? a : b; }
 inline int max( int a, int b ) { return a > b ? a : b; }
@@ -38,15 +40,15 @@ using WallRegion = GhostZoneRegion;
 using GZR = GhostZoneRegion;    // shorthand qualifier
 using WR = GhostZoneRegion;    // shorthand qualifier
 
-using NeighborRegion = std::vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
-using WallRegionList = std::pair<short, std::vector<WallRegion>>;
-using BinNeighbor = std::map<short, std::vector<NeighborRegion>>;    // neighbor regions by number of bins    
-using BinWalls = std::map<short, std::vector<WallRegionList>>;
+using NeighborRegion = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
+using WallRegionList = std::pair<short, vector<WallRegion>>;
+using BinNeighbor = map<short, vector<NeighborRegion>>;    // neighbor regions by number of bins    
+using BinWalls = map<short, vector<WallRegionList>>;
 
 
 
-using Bin = std::list<particle_t>;
-using Mesh = std::vector<Bin>;
+using Bin = forward_list<particle_t>;
+using Mesh = vector<Bin>;
 
 
 //
@@ -58,7 +60,7 @@ double read_timer( );
 //  simulation routines
 //
 void set_size( int n );
-void init_particles( int n, Mesh &p, short numRowBins = 1, short numColBins = 1 );
+void init_particles( int n, Mesh &p );
 void apply_force( particle_t &particle, const particle_t &neighbor , double *dmin, double *davg, int *navg);
 void move( particle_t &p );
 

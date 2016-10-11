@@ -10,6 +10,9 @@ using namespace std;
 //
 //  benchmarking program
 //
+template<class T>
+inline short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
+
 int main( int argc, char **argv )
 {    
     int navg,nabsavg=0;
@@ -27,20 +30,23 @@ int main( int argc, char **argv )
     }
     
     int n = read_int( argc, argv, "-n", 1000 );
-    extern short numRowBins, numColBins, numThreads;
+    extern short binsPerRow, binsPerCol, numThreads;
+    extern BinNeighbor neighborBin;
+    extern vector<NeighborRegion> nr;
 
         // determine mesh size
     switch(numThreads)
     {
-        case 16: numRowBins = 4; numColBins = 4; break;
-        case 8: numRowBins = 4; numColBins = 2; break;
-        case 4: numRowBins = 2; numColBins = 2; break;
-        case 2: numRowBins = 2; numColBins = 1; break;
+        case 16: binsPerRow = 4; binsPerCol = 4; break;
+        case 8: binsPerRow = 4; binsPerCol = 2; break;
+        case 4: binsPerRow = 2; binsPerCol = 2; break;
+        case 2: binsPerRow = 2; binsPerCol = 1; break;
         case 1:            
             // fall thru
         default:
-            numRowBins = numColBins = 1;
+            binsPerRow = binsPerCol = 1;
     }
+    nr =  neighborBin[numThreads];
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
@@ -50,7 +56,7 @@ int main( int argc, char **argv )
     
     Mesh world { numThreads, Bin{} };
     set_size( n );
-    init_particles( n, world, numRowBins, numColBins );
+    init_particles( n, world );
     
     //
     //  simulate a number of time steps
@@ -135,7 +141,7 @@ int main( int argc, char **argv )
         
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
-            [fsum, &numP](const Bin &b)    {           fprintf(fsum,"Bin Size: %i\n",b.size()); numP += b.size();  });
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b); fprintf(fsum,"Bin Size: %i\n",s); numP += s;  });
         fprintf(fsum, "Total particles in bins: %i\n", numP);
     }
     //

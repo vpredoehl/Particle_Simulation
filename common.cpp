@@ -10,9 +10,11 @@
 
 #include <algorithm>
 
+using namespace std;
+
 double size;
 short numThreads = 2;
-short numRowBins, numColBins;
+short binsPerRow, binsPerCol;
 
 BinWalls walls
         {
@@ -58,7 +60,8 @@ BinNeighbor neighborBin
       }
     }
   };
-
+  
+vector<NeighborRegion> nr;  // for current number of bins
 
 
 //
@@ -98,7 +101,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, Mesh &p, short binsPerRow, short binsPerCol )
+void init_particles( int n, Mesh &p)
 {
     srand48( time( NULL ) );
         
@@ -133,7 +136,18 @@ void init_particles( int n, Mesh &p, short binsPerRow, short binsPerCol )
         float topWall = y * size / binsPerCol;
         float bottomWall = (y+1) * size/binsPerCol;
         Bin &dropBin = p[whichBin];
-
+        
+            // ghost zone placement
+        auto z = nr[whichBin];  // zone list
+        for_each(z.begin(), z.end(),
+        [](const pair<short /* the neighbor bin */, GhostZoneRegion> &r)   
+            {
+                switch(r.first)
+                {
+                    
+                }
+            });
+    
         //
         //  assign random velocities within a bound
         //
