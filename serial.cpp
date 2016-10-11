@@ -4,9 +4,15 @@
 #include <math.h>
 #include "common.h"
 
+#include <algorithm>
+
+using namespace std;
 //
 //  benchmarking program
 //
+template<class T>
+inline short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
+
 int main( int argc, char **argv )
 {    
     int navg,nabsavg=0;
@@ -24,22 +30,42 @@ int main( int argc, char **argv )
     }
     
     int n = read_int( argc, argv, "-n", 1000 );
+    extern short binsPerRow, binsPerCol, numThreads;
+    extern BinNeighbor neighborBin;
+    extern vector<NeighborRegion> nr;
+
+        // determine mesh size
+    switch(numThreads)
+    {
+        case 16: binsPerRow = 4; binsPerCol = 4; break;
+        case 8: binsPerRow = 4; binsPerCol = 2; break;
+        case 4: binsPerRow = 2; binsPerCol = 2; break;
+        case 2: binsPerRow = 2; binsPerCol = 1; break;
+        case 1:            
+            // fall thru
+        default:
+            binsPerRow = binsPerCol = 1;
+    }
+    nr =  neighborBin[numThreads];
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
     
     FILE *fsave = savename ? fopen( savename, "w" ) : NULL;
     FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
-
-    particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
+    
+    Mesh world { numThreads, Bin{} };
     set_size( n );
-    init_particles( n, particles );
+    init_particles( n, world );
     
     //
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
 	
+  for_each(world.begin(), world.end(), 
+  [&](Bin &b)
+  {  
     for( int step = 0; step < NSTEPS; step++ )
     {
 	navg = 0;
@@ -47,19 +73,25 @@ int main( int argc, char **argv )
 	dmin = 1.0;
         //
         //  compute forces
-        //
-        for( int i = 0; i < n; i++ )
-        {
-            particles[i].ax = particles[i].ay = 0;
-            for (int j = 0; j < n; j++ )
-				apply_force( particles[i], particles[j],&dmin,&davg,&navg);
-        }
+        // 
+        
+                for_each(b.content.begin(), b.content.end(), 
+                [&,b](particle_t &p1)
+                {   
+                    p1.ax = p1.ay = 0;
+                    for_each(b.content.begin(), b.content.end(), 
+                    [&](const particle_t &p2)
+                    {
+                        apply_force( p1, p2 ,&dmin,&davg,&navg);
+                    });
+                    
+                }); 
+
  
         //
         //  move particles
         //
-        for( int i = 0; i < n; i++ ) 
-            move( particles[i] );		
+        for_each(b.content.begin(), b.content.end(), [](particle_t &p)   {   move(p);    });
 
         if( find_option( argc, argv, "-no" ) == -1 )
         {
@@ -76,9 +108,10 @@ int main( int argc, char **argv )
           //  save if necessary
           //
           if( fsave && (step%SAVEFREQ) == 0 )
-              save( fsave, n, particles );
+              save( fsave, n, world );
         }
     }
+  });
     simulation_time = read_timer( ) - simulation_time;
     
     printf( "n = %d, simulation time = %g seconds", n, simulation_time);
@@ -103,14 +136,19 @@ int main( int argc, char **argv )
     // Printing summary data
     //
     if( fsum) 
+    {
+        short numP = 0;
+        
         fprintf(fsum,"%d %g\n",n,simulation_time);
- 
+        for_each(world.begin(), world.end(),
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i\n",s); numP += s;  });
+        fprintf(fsum, "Total particles in bins: %i\n", numP);
+    }
     //
     // Clearing space
     //
     if( fsum )
         fclose( fsum );    
-    free( particles );
     if( fsave )
         fclose( fsave );
     

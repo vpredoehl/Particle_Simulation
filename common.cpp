@@ -8,7 +8,61 @@
 #include <sys/time.h>
 #include "common.h"
 
+#include <algorithm>
+
+using namespace std;
+
 double size;
+short numThreads = 2;
+short binsPerRow, binsPerCol;
+
+BinWalls walls
+        {
+            { 2, {{0, {WR::top, WR::left, WR::bottom}}, {1, {WR::top, WR::right, WR::bottom}}}},
+            { 4, {
+                    {0, {WR::top, WR::left}},
+                    {1, {WR::top, WR::right}}, 
+                    {2, {WR::left, WR::bottom}}, 
+                    {3, {WR::bottom, WR::right}}
+                 }
+            }
+        };
+        
+
+BinNeighbor neighborBin
+  {
+    { 2,        // ghost zones for two bins
+                // the following vector is enumerated in bin order
+      {
+        {   // neighbor regions for bin 0
+            {1, GhostZoneRegion::left}    
+        },
+        {   // neighbor regions for bin 1
+            {0, GZR::right}
+        }
+      }
+    },
+    { 4,        // ghost zones for four bins
+                // the following vector is enumerated in bin order
+      {    
+        {   // neighbor regions for bin 0
+            {1, GZR::left}, {2, GZR::top}, {3,GZR::topLeft}
+        },
+        {   // neighbor regions for bin 1
+            {0, GZR::right}, {2,GZR::topRight}, {3, GZR::top}
+        },
+        {   // neighbor regions for bin 2
+            {0, GZR::bottom}, {1, GZR::bottomLeft}, {3, GZR::left}
+        },
+        {   // neighbor regions for bin 3
+            {0, GZR::bottomRight}, {1, GZR::bottom}, {2, GZR::right}
+        }
+      }
+    }
+  };
+  
+vector<NeighborRegion> nr;  // for current number of bins
+
 
 //
 //  tuned constants
@@ -47,7 +101,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, particle_t *p )
+void init_particles( int n, Mesh &p)
 {
     srand48( time( NULL ) );
         
@@ -57,9 +111,12 @@ void init_particles( int n, particle_t *p )
     int *shuffle = (int*)malloc( n * sizeof(int) );
     for( int i = 0; i < n; i++ )
         shuffle[i] = i;
+        
     
     for( int i = 0; i < n; i++ ) 
     {
+        particle_t newParticle;
+        
         //
         //  make sure particles are not spatially sorted
         //
@@ -70,14 +127,34 @@ void init_particles( int n, particle_t *p )
         //
         //  distribute particles evenly to ensure proper spacing
         //
-        p[i].x = size*(1.+(k%sx))/(1+sx);
-        p[i].y = size*(1.+(k/sx))/(1+sy);
+        int x = (newParticle.x = size*(1.+(k%sx))/(1+sx)) * binsPerRow / size;
+        int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) * binsPerCol / size;
 
+        short whichBin = x + y * binsPerRow;
+        float leftWall = x * size / binsPerRow;
+        float rightWall = (x+1) * size / binsPerRow;
+        float topWall = y * size / binsPerCol;
+        float bottomWall = (y+1) * size/binsPerCol;
+        Bin &dropBin = p[whichBin];
+        
+            // ghost zone placement
+        auto z = nr[whichBin];  // zone list
+        for_each(z.begin(), z.end(),
+        [](const pair<short /* the neighbor bin */, GhostZoneRegion> &r)   
+            {
+                switch(r.first)
+                {
+                    
+                }
+            });
+    
         //
         //  assign random velocities within a bound
         //
-        p[i].vx = drand48()*2-1;
-        p[i].vy = drand48()*2-1;
+        newParticle.vx = drand48()*2-1;
+        newParticle.vy = drand48()*2-1;
+
+        dropBin.content.push_front(newParticle);   
     }
     free( shuffle );
 }
@@ -85,7 +162,7 @@ void init_particles( int n, particle_t *p )
 //
 //  interact two particles
 //
-void apply_force( particle_t &particle, particle_t &neighbor , double *dmin, double *davg, int *navg)
+void apply_force( particle_t &particle, const particle_t &neighbor , double *dmin, double *davg, int *navg)
 {
 
     double dx = neighbor.x - particle.x;
@@ -146,7 +223,7 @@ void move( particle_t &p )
 //
 //  I/O routines
 //
-void save( FILE *f, int n, particle_t *p )
+void save( FILE *f, int n, const Mesh &world )
 {
     static bool first = true;
     if( first )
@@ -154,8 +231,15 @@ void save( FILE *f, int n, particle_t *p )
         fprintf( f, "%d %g\n", n, size );
         first = false;
     }
-    for( int i = 0; i < n; i++ )
-        fprintf( f, "%g %g\n", p[i].x, p[i].y );
+    for_each(world.begin(), world.end(),
+        [f](const Bin& b)
+        {
+            for_each(b.content.begin(), b.content.end(), 
+            [f](const particle_t &p)
+            {
+                fprintf( f, "%g %g\n", p.x, p.y );
+            });
+        });
 }
 
 //
