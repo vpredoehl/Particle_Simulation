@@ -163,7 +163,7 @@ void init_particles( int n, Mesh &p)
                         case GZR::bottomRight: inGZ = inRightGZ && inBottomGZ;  break;                        
                     }
                     if(inGZ)    dropBin.gz[static_cast<int>(rgnIter->second)].push_back(newParticle);
-                    if(inGZ)    cout << "particle in GZ" << endl;
+                    if(inGZ)    cout << "initialized particle in GZ" << endl;
                 }
             });
             
@@ -175,6 +175,40 @@ void init_particles( int n, Mesh &p)
         newParticle.vy = drand48()*2-1;
 
         dropBin.content.push_front(newParticle);   
+    }
+    free( shuffle );
+}
+void init_particles( int n, particle_t *p )
+{
+    srand48( time( NULL ) );
+        
+    int sx = (int)ceil(sqrt((double)n));
+    int sy = (n+sx-1)/sx;
+    
+    int *shuffle = (int*)malloc( n * sizeof(int) );
+    for( int i = 0; i < n; i++ )
+        shuffle[i] = i;
+    
+    for( int i = 0; i < n; i++ ) 
+    {
+        //
+        //  make sure particles are not spatially sorted
+        //
+        int j = lrand48()%(n-i);
+        int k = shuffle[j];
+        shuffle[j] = shuffle[n-i-1];
+        
+        //
+        //  distribute particles evenly to ensure proper spacing
+        //
+        p[i].x = size*(1.+(k%sx))/(1+sx);
+        p[i].y = size*(1.+(k/sx))/(1+sy);
+
+        //
+        //  assign random velocities within a bound
+        //
+        p[i].vx = drand48()*2-1;
+        p[i].vy = drand48()*2-1;
     }
     free( shuffle );
 }
@@ -260,6 +294,17 @@ void save( FILE *f, int n, const Mesh &world )
                 fprintf( f, "%g %g\n", p.x, p.y );
             });
         });
+}
+void save( FILE *f, int n, particle_t *p )
+{
+    static bool first = true;
+    if( first )
+    {
+        fprintf( f, "%d %g\n", n, size );
+        first = false;
+    }
+    for( int i = 0; i < n; i++ )
+        fprintf( f, "%g %g\n", p[i].x, p[i].y );
 }
 
 //
