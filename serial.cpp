@@ -32,7 +32,7 @@ int main( int argc, char **argv )
     int n = read_int( argc, argv, "-n", 1000 );
     extern short binsPerRow, binsPerCol, numThreads;
     extern BinNeighbor neighborBin;
-    extern vector<NeighborRegion> nr;
+    extern vector<NeighborRegionList> nr;
 
         // determine mesh size
     switch(numThreads)

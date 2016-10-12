@@ -34,21 +34,24 @@ typedef struct
 enum class GhostZoneRegion : char   
 {
     topLeft, topRight, bottomLeft, bottomRight,
-    top, left, bottom, right
+    top, left, bottom, right,
+    num_elements
 };
+
 using WallRegion = GhostZoneRegion;
 using GZR = GhostZoneRegion;    // shorthand qualifier
 using WR = GhostZoneRegion;    // shorthand qualifier
 
-using NeighborRegion = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
+using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
 using WallRegionList = std::pair<short, vector<WallRegion>>;
-using BinNeighbor = map<short, vector<NeighborRegion>>;    // neighbor regions by number of bins    
+using BinNeighbor = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
 using BinWalls = map<short, vector<WallRegionList>>;
 
 
 using Bin = struct
 {
     forward_list<particle_t> content;
+    vector<vector<particle_t>> gz{static_cast<int>(GhostZoneRegion::num_elements)};
 };
 
 using Mesh = vector<Bin>;

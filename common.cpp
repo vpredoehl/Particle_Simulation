@@ -9,6 +9,7 @@
 #include "common.h"
 
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -61,7 +62,7 @@ BinNeighbor neighborBin
     }
   };
   
-vector<NeighborRegion> nr;  // for current number of bins
+vector<NeighborRegionList> nr;  // for current number of bins
 
 
 //
@@ -138,15 +139,34 @@ void init_particles( int n, Mesh &p)
         Bin &dropBin = p[whichBin];
         
             // ghost zone placement
-        auto z = nr[whichBin];  // zone list
-        for_each(z.begin(), z.end(),
-        [](const pair<short /* the neighbor bin */, GhostZoneRegion> &r)   
+        for_each(nr.begin(), nr.end(), [=, &dropBin](const NeighborRegionList &neighbors)
             {
-                switch(r.first)
+                auto rgnIter = find_if(neighbors.begin(), neighbors.end(), 
+                    [=, &dropBin](const pair<short /*  neighbor bin */, GhostZoneRegion> &n) -> bool    {   return n.first == whichBin; });
+                if(rgnIter != neighbors.end())  
                 {
-                    
+                    bool inLeftGZ = newParticle.x < leftWall - cutoff;
+                    bool inRightGZ = newParticle.x > rightWall - cutoff;
+                    bool inTopGZ = newParticle.y < topWall - cutoff;
+                    bool inBottomGZ = newParticle.y > bottomWall - cutoff;
+                    bool inGZ = false;
+                        // found a ghost zone for this bin
+                    switch(rgnIter->second)
+                    {
+                        case GZR::left:     inGZ = inLeftGZ;    break;
+                        case GZR::top:      inGZ = inTopGZ;     break;
+                        case GZR::right:    inGZ = inRightGZ;   break;
+                        case GZR::bottom:   inGZ = inBottomGZ;  break;
+                        case GZR::topLeft:  inGZ = inLeftGZ && inTopGZ;  break;
+                        case GZR::bottomLeft: inGZ = inBottomGZ && inLeftGZ;    break;
+                        case GZR::topRight:  inGZ = inRightGZ && inTopGZ;  break;
+                        case GZR::bottomRight: inGZ = inRightGZ && inBottomGZ;  break;                        
+                    }
+                    if(inGZ)    dropBin.gz[static_cast<int>(rgnIter->second)].push_back(newParticle);
+                    if(inGZ)    cout << "particle in GZ" << endl;
                 }
             });
+            
     
         //
         //  assign random velocities within a bound
