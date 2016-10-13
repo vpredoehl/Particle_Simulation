@@ -132,11 +132,12 @@ void init_particles( int n, Mesh &p)
         int y = (newParticle.y = size*(1.+(k/sx))/(1+sy)) * binsPerCol / size;
 
         short whichBin = x + y * binsPerRow;
-        float leftWall = x * size / binsPerRow;
-        float rightWall = (x+1) * size / binsPerRow;
-        float topWall = y * size / binsPerCol;
-        float bottomWall = (y+1) * size/binsPerCol;
         Bin &dropBin = p[whichBin];
+
+        float leftWall = dropBin.leftWall = x * size / binsPerRow;
+        float rightWall = dropBin.rightWall = (x+1) * size / binsPerRow;
+        float topWall = dropBin.topWall = y * size / binsPerCol;
+        float bottomWall = dropBin.bottomWall = (y+1) * size/binsPerCol;
         
             // ghost zone placement
         for_each(nr.begin(), nr.end(), [=, &dropBin](const NeighborRegionList &neighbors)
@@ -145,25 +146,16 @@ void init_particles( int n, Mesh &p)
                     [=, &dropBin](const pair<short /*  neighbor bin */, GhostZoneRegion> &n) -> bool    {   return n.first == whichBin; });
                 if(rgnIter != neighbors.end())  
                 {
-                    bool inLeftGZ = newParticle.x < leftWall - cutoff;
-                    bool inRightGZ = newParticle.x > rightWall - cutoff;
-                    bool inTopGZ = newParticle.y < topWall - cutoff;
-                    bool inBottomGZ = newParticle.y > bottomWall - cutoff;
                     bool inGZ = false;
                         // found a ghost zone for this bin
                     switch(rgnIter->second)
                     {
-                        case GZR::left:     inGZ = inLeftGZ;    break;
-                        case GZR::top:      inGZ = inTopGZ;     break;
-                        case GZR::right:    inGZ = inRightGZ;   break;
-                        case GZR::bottom:   inGZ = inBottomGZ;  break;
-                        case GZR::topLeft:  inGZ = inLeftGZ && inTopGZ;  break;
-                        case GZR::bottomLeft: inGZ = inBottomGZ && inLeftGZ;    break;
-                        case GZR::topRight:  inGZ = inRightGZ && inTopGZ;  break;
-                        case GZR::bottomRight: inGZ = inRightGZ && inBottomGZ;  break;                        
+                        case GZR::left:     inGZ = newParticle.x < leftWall - cutoff;    break;
+                        case GZR::top:      inGZ = newParticle.y < topWall - cutoff;     break;
+                        case GZR::right:    inGZ = newParticle.x > rightWall - cutoff;   break;
+                        case GZR::bottom:   inGZ = newParticle.y > bottomWall - cutoff;  break;
                     }
                     if(inGZ)    dropBin.gz[static_cast<int>(rgnIter->second)].push_back(newParticle);
-                    if(inGZ)    cout << "initialized particle in GZ" << endl;
                 }
             });
             
@@ -175,40 +167,6 @@ void init_particles( int n, Mesh &p)
         newParticle.vy = drand48()*2-1;
 
         dropBin.content.push_front(newParticle);   
-    }
-    free( shuffle );
-}
-void init_particles( int n, particle_t *p )
-{
-    srand48( time( NULL ) );
-        
-    int sx = (int)ceil(sqrt((double)n));
-    int sy = (n+sx-1)/sx;
-    
-    int *shuffle = (int*)malloc( n * sizeof(int) );
-    for( int i = 0; i < n; i++ )
-        shuffle[i] = i;
-    
-    for( int i = 0; i < n; i++ ) 
-    {
-        //
-        //  make sure particles are not spatially sorted
-        //
-        int j = lrand48()%(n-i);
-        int k = shuffle[j];
-        shuffle[j] = shuffle[n-i-1];
-        
-        //
-        //  distribute particles evenly to ensure proper spacing
-        //
-        p[i].x = size*(1.+(k%sx))/(1+sx);
-        p[i].y = size*(1.+(k/sx))/(1+sy);
-
-        //
-        //  assign random velocities within a bound
-        //
-        p[i].vx = drand48()*2-1;
-        p[i].vy = drand48()*2-1;
     }
     free( shuffle );
 }
@@ -295,17 +253,6 @@ void save( FILE *f, int n, const Mesh &world )
             });
         });
 }
-void save( FILE *f, int n, particle_t *p )
-{
-    static bool first = true;
-    if( first )
-    {
-        fprintf( f, "%d %g\n", n, size );
-        first = false;
-    }
-    for( int i = 0; i < n; i++ )
-        fprintf( f, "%g %g\n", p[i].x, p[i].y );
-}
 
 //
 //  command line option processing
@@ -332,4 +279,51 @@ char *read_string( int argc, char **argv, const char *option, char *default_valu
     if( iplace >= 0 && iplace < argc-1 )
         return argv[iplace+1];
     return default_value;
+}
+
+// old functions
+void save( FILE *f, int n, particle_t *p )
+{
+    static bool first = true;
+    if( first )
+    {
+        fprintf( f, "%d %g\n", n, size );
+        first = false;
+    }
+    for( int i = 0; i < n; i++ )
+        fprintf( f, "%g %g\n", p[i].x, p[i].y );
+}
+void init_particles( int n, particle_t *p )
+{
+    srand48( time( NULL ) );
+        
+    int sx = (int)ceil(sqrt((double)n));
+    int sy = (n+sx-1)/sx;
+    
+    int *shuffle = (int*)malloc( n * sizeof(int) );
+    for( int i = 0; i < n; i++ )
+        shuffle[i] = i;
+    
+    for( int i = 0; i < n; i++ ) 
+    {
+        //
+        //  make sure particles are not spatially sorted
+        //
+        int j = lrand48()%(n-i);
+        int k = shuffle[j];
+        shuffle[j] = shuffle[n-i-1];
+        
+        //
+        //  distribute particles evenly to ensure proper spacing
+        //
+        p[i].x = size*(1.+(k%sx))/(1+sx);
+        p[i].y = size*(1.+(k/sx))/(1+sy);
+
+        //
+        //  assign random velocities within a bound
+        //
+        p[i].vx = drand48()*2-1;
+        p[i].vy = drand48()*2-1;
+    }
+    free( shuffle );
 }

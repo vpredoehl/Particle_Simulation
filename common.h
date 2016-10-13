@@ -33,9 +33,9 @@ typedef struct
 
 enum class GhostZoneRegion : char   
 {
-    topLeft, topRight, bottomLeft, bottomRight,
     top, left, bottom, right,
-    num_elements
+    num_walls,
+    topLeft, topRight, bottomLeft, bottomRight,
 };
 
 using WallRegion = GhostZoneRegion;
@@ -51,8 +51,10 @@ using BinWalls = map<short, vector<WallRegionList>>;
 using Bin = struct
 {
     forward_list<particle_t> content;
-    vector<vector<particle_t>> gz{static_cast<int>(GhostZoneRegion::num_elements)};
+    vector<vector<particle_t>> gz{static_cast<int>(GhostZoneRegion::num_walls)};
     vector<particle_t> newParticles;
+    
+    float leftWall, rightWall, topWall, bottomWall;
 };
 
 using Mesh = vector<Bin>;
