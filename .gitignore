@@ -6,7 +6,14 @@ tutorials/*
 *.out
 *.swp
 
-OMP_Exercises
+!tutorials/mpi-send-and-receive
+send_recv
+*.btr
+*.md
+
+SerialPI
+main.c
+
 autograder
 mpi
 openmp
