@@ -2,4 +2,14 @@
 *.o
 *.txt
 *.stdout
+tutorials/*
+*.out
+*.swp
 
+OMP_Exercises
+autograder
+mpi
+openmp
+particles.session
+pthreads
+serial
