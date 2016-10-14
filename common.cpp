@@ -17,6 +17,8 @@ double size;
 short numThreads = 2;
 short binsPerRow, binsPerCol;
 
+short particle_t::cnt = 0;
+
 
 BinNeighbor neighborBin
   {
