@@ -17,18 +17,6 @@ double size;
 short numThreads = 2;
 short binsPerRow, binsPerCol;
 
-BinWalls walls
-        {
-            { 2, {{0, {WR::top, WR::left, WR::bottom}}, {1, {WR::top, WR::right, WR::bottom}}}},
-            { 4, {
-                    {0, {WR::top, WR::left}},
-                    {1, {WR::top, WR::right}}, 
-                    {2, {WR::left, WR::bottom}}, 
-                    {3, {WR::bottom, WR::right}}
-                 }
-            }
-        };
-        
 
 BinNeighbor neighborBin
   {
@@ -63,16 +51,6 @@ BinNeighbor neighborBin
   };
   
 vector<NeighborRegionList> nr;  // for current number of bins
-
-
-//
-//  tuned constants
-//
-#define density 0.0005
-#define mass    0.01
-#define cutoff  0.01
-#define min_r   (cutoff/100)
-#define dt      0.0005
 
 //
 //  timer
@@ -148,10 +126,11 @@ void init_particles( int n, Mesh &p)
                 {
                     bool inGZ = false;
                         // found a ghost zone for this bin
+                        // see if current particle is in it
                     switch(rgnIter->second)
                     {
-                        case GZR::left:     inGZ = newParticle.x < leftWall - cutoff;    break;
-                        case GZR::top:      inGZ = newParticle.y < topWall - cutoff;     break;
+                        case GZR::left:     inGZ = newParticle.x < leftWall + cutoff;    break;
+                        case GZR::top:      inGZ = newParticle.y < topWall + cutoff;     break;
                         case GZR::right:    inGZ = newParticle.x > rightWall - cutoff;   break;
                         case GZR::bottom:   inGZ = newParticle.y > bottomWall - cutoff;  break;
                     }

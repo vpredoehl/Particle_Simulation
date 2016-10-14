@@ -4,6 +4,7 @@
 #include <math.h>
 #include "common.h"
 
+#include <iostream>
 #include <algorithm>
 
 using namespace std;
@@ -55,43 +56,154 @@ int main( int argc, char **argv )
     FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
     
     Mesh world { numThreads, Bin{} };
+
+    switch(numThreads)  // set adjacent bin indexes 
+    {
+        case 2:
+            world[0].binToLeft = world[0].binToTop = world[0].binToBottom 
+                = world[0].binToUpperLeft = world[0].binToUpperRight 
+                = world[0].binToLowerLeft = world[0].binToLowerRight = -1;
+            world[0].binToRight = 1;
+            
+            world[1].binToRight = world[1].binToTop = world[1].binToBottom
+                = world[1].binToUpperLeft = world[1].binToUpperRight 
+                = world[1].binToLowerLeft = world[1].binToLowerRight = -1;
+            world[1].binToLeft = 0;
+            break;
+    }    
+
     set_size( n );
     init_particles( n, world );
+    
+    if( fsum) 
+    {
+        short numP = 0;
+        
+        for_each(world.begin(), world.end(),
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %i\n",s, b.crossovers.size()); numP += s;  });
+
+        fprintf(fsum, "Initial total particles in bins: %i\n", numP);
+    }
+
     
     //
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
 	
-  for_each(world.begin(), world.end(), 
-  [&](Bin &b)
-  {  
-    for( int step = 0; step < NSTEPS; step++ )
-    {
+ for( int step = 0; step < NSTEPS; step++ )
+  {
+        for_each(world.begin(), world.end(), 
+            [step](Bin &b)
+        {
+           // 
+            // absorb crossovers from other bins first
+            //
+            for_each(b.crossovers.cbegin(), b.crossovers.cend(), 
+          [step,&b](const particle_t &p)
+          {
+                 // place new particle in appropriate ghost zone for this bin
+                 // so interaction in neighboring bin is not affected
+             if(p.x < b.leftWall + cutoff) b.gz[static_cast<int>(GZR::left)].push_back(p);
+             else if(p.x > b.rightWall - cutoff) b.gz[static_cast<int>(GZR::right)].push_back(p);
+             if(p.y < b.topWall + cutoff) b.gz[static_cast<int>(GZR::top)].push_back(p);
+             else if(p.y > b.bottomWall - cutoff) b.gz[static_cast<int>(GZR::bottom)].push_back(p);
+          
+                  // then add new particle to this bin's content list
+             b.content.push_front(p);    
+           });
+            cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
+            b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
+        });
+        
 	navg = 0;
         davg = 0.0;
 	dmin = 1.0;
+        
         //
         //  compute forces
         // 
-        
-                for_each(b.content.begin(), b.content.end(), 
+        for_each(world.begin(), world.end(), 
+        [&](Bin &b)
+        {          
+                for_each(b.content.begin(), b.content.end(),
                 [&,b](particle_t &p1)
                 {   
+                    auto ApplyForce = [&](const particle_t &p2)   {   apply_force( p1, p2 ,&dmin,&davg,&navg);    };
+
                     p1.ax = p1.ay = 0;
-                    for_each(b.content.begin(), b.content.end(), 
-                    [&](const particle_t &p2)
+                    for_each(b.content.begin(), b.content.end(),  ApplyForce);
+                        
+                        //
+                        // apply force in caused by neighboring ghost zones
+                        //
+                    if(b.binToLeft != -1)
                     {
-                        apply_force( p1, p2 ,&dmin,&davg,&navg);
-                    });
+                            // get right ghost zone for bin to left and apply force
+                        vector<particle_t> &rightGZ = world[b.binToLeft].gz[static_cast<int>(GZR::right)];
+                        for_each(rightGZ.begin(), rightGZ.end(), ApplyForce);
+                    }         
+                    if(b.binToRight != -1)
+                    {
+                            // get left ghost zone for bin to right and apply force
+                        vector<particle_t> &leftGZ = world[b.binToRight].gz[static_cast<int>(GZR::left)];
+                        for_each(leftGZ.begin(), leftGZ.end(), ApplyForce);
+                    }
+                    if(b.binToTop != -1)
+                    {
+                        vector<particle_t> &bottomGZ = world[b.binToTop].gz[static_cast<int>(GZR::bottom)];
+                        for_each(bottomGZ.begin(), bottomGZ.end(), ApplyForce);
+                    }
+                    if(b.binToBottom != -1)
+                    {
+                        vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
+                        for_each(topGZ.begin(), topGZ.end(), ApplyForce);
+                    }
+//                    if(p1.ax > .1 || p1.ay > .1)    cout << "step: " << step << " a: ( " << p1.ax << ", " << p1.ay << " )" << endl;
                     
                 }); 
+        });
 
  
         //
         //  move particles
         //
-        for_each(b.content.begin(), b.content.end(), [](particle_t &p)   {   move(p);    });
+        for_each(world.begin(), world.end(), 
+            [&](Bin &b)
+            {        
+                auto  particleIter = b.content.begin(), lastIter = particleIter;    // lastIter is for erase_after so current particle can be deleted
+                while(particleIter != b.content.end())
+                {        
+                    auto& p = *particleIter;
+                    move(p);
+
+            bool jumpLeft = p.x < b.leftWall;
+            bool jumpRight = p.x > b.rightWall;
+            bool jumpTop = p.y < b.topWall;
+            bool jumpBottom = p.y > b.bottomWall;
+            
+                // add the particle to the neighboring bin if there  is a crossover
+//            if(jumpLeft)        world[ jumpTop ? b.binToUpperLeft : jumpBottom ? b.binToLowerLeft : b.binToLeft ].crossovers.push_back(p);
+  //          else if(jumpRight)  world[ jumpTop ? b.binToUpperRight : jumpBottom ? b.binToLowerRight : b.binToRight ].crossovers.push_back(p);
+            if(jumpLeft)        world[ b.binToLeft ].crossovers.push_back(p);
+            else if(jumpRight)  world[ b.binToRight ].crossovers.push_back(p);
+            if(jumpTop)    world[ b.binToTop ].crossovers.push_back(p);
+            else if(jumpBottom) world[ b.binToBottom ].crossovers.push_back(p);     
+            
+            if(jumpLeft || jumpRight || jumpTop || jumpBottom)
+            {
+                    // particle left jumped - delete it from this bin
+//                cout << "step: " << step << " BinSize: " << list_size(b.content) << "  Crossover ( " << p.x << ", " << p.y << " ), ( vx: " << p.vx << ", " << " vy: " << p.vy << " )  jumpLeft: " << jumpLeft << " jumpRight: " << jumpRight << " jumpTop: " << jumpTop << " jumpBottom: " << jumpBottom << endl;
+                if(lastIter == particleIter)
+                {
+                    b.content.pop_front();  // happened to be the first in the list
+                    lastIter = particleIter = b.content.begin();    // reset iterators
+                }
+                else particleIter = b.content.erase_after(lastIter);
+                continue;
+            }
+            lastIter = particleIter++;
+        };
 
         if( find_option( argc, argv, "-no" ) == -1 )
         {
@@ -110,8 +222,8 @@ int main( int argc, char **argv )
           if( fsave && (step%SAVEFREQ) == 0 )
               save( fsave, n, world );
         }
-    }
-  });
+    });
+  }
     simulation_time = read_timer( ) - simulation_time;
     
     printf( "n = %d, simulation time = %g seconds", n, simulation_time);
@@ -141,8 +253,15 @@ int main( int argc, char **argv )
         
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
-            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i\n",s); numP += s;  });
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %i\n",s, b.crossovers.size()); numP += s;  });
 
+        for_each(world.begin(), world.end(),
+            [](const Bin &b)
+            {
+                for_each(b.content.begin(), b.content.end(),
+                    [](const particle_t &p) {   cout << "v:  ( " << p.vx << ", " << p.vy << " ) " << endl;  });
+            });
+            
         fprintf(fsum, "Total particles in bins: %i\n", numP);
     }
     //

@@ -40,21 +40,19 @@ enum class GhostZoneRegion : char
 
 using WallRegion = GhostZoneRegion;
 using GZR = GhostZoneRegion;    // shorthand qualifier
-using WR = GhostZoneRegion;    // shorthand qualifier
 
 using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
-using WallRegionList = std::pair<short, vector<WallRegion>>;
 using BinNeighbor = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
-using BinWalls = map<short, vector<WallRegionList>>;
 
 
-using Bin = struct
+struct Bin
 {
     forward_list<particle_t> content;
     vector<vector<particle_t>> gz{static_cast<int>(GhostZoneRegion::num_walls)};
-    vector<particle_t> newParticles;
+    vector<particle_t> crossovers;
     
     float leftWall, rightWall, topWall, bottomWall;
+    short binToLeft, binToRight, binToTop, binToBottom, binToUpperLeft, binToUpperRight, binToLowerLeft, binToLowerRight;   // adjacent bin indexes
 };
 
 using Mesh = vector<Bin>;
@@ -88,5 +86,17 @@ void save( FILE *f, int n, const Mesh& );
 int find_option( int argc, char **argv, const char *option );
 int read_int( int argc, char **argv, const char *option, int default_value );
 char *read_string( int argc, char **argv, const char *option, char *default_value );
+
+
+//
+//  tuned constants
+//
+#define density 0.0005
+#define mass    0.01
+#define cutoff  0.01
+#define min_r   (cutoff/100)
+#define dt      0.0005
+
+
 
 #endif
