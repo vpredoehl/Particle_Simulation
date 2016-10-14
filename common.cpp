@@ -84,7 +84,7 @@ void set_size( int n )
 //
 void init_particles( int n, Mesh &p)
 {
-    srand48( time( NULL ) );
+	srand48(5);
         
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
