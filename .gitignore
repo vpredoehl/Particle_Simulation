@@ -12,7 +12,6 @@ send_recv
 *.md
 
 SerialPI
-main.c
 
 autograder
 mpi
