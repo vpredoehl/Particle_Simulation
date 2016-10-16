@@ -49,8 +49,30 @@ BinNeighbor neighborBin
       }
     }
   };
-  
-vector<NeighborRegionList> nr;  // for current number of bins
+
+BinList binGZ   // enumerates each bin's ghost zone regions
+    {
+        { 2,    // two threads
+            {
+                {GZR::right}, // bin 0
+                {GZR::left} // bin 1
+            }
+        },
+        { 4,    // four threads
+            {
+                    // ghost zone regions by bin
+                {GZR::right, GZR::bottom, GZR::bottomRight},  // bin 0
+                {GZR::left, GZR::bottom, GZR::bottomLeft},   // bin 1
+                {GZR::right, GZR::top, GZR::topRight},     // bin 2
+                {GZR::left, GZR::top, GZR::topLeft}       // bin 3
+            }
+        }
+    };
+    
+
+// specific enumeration for current number of threads
+vector<NeighborRegionList> nr;
+BinGhostZoneList bgz; 
 
 //
 //  timer
@@ -82,8 +104,10 @@ void set_size( int n )
 //
 void init_particles( int n, Mesh &p)
 {
-    srand48( time( NULL ) );
-        
+    auto tt = time ( NULL );
+    srand48( 1476662249 );
+    cout << "Seed: " << tt << endl;
+    
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
     
@@ -120,6 +144,9 @@ void init_particles( int n, Mesh &p)
             // ghost zone placement
         for_each(nr.begin(), nr.end(), [=, &dropBin](const NeighborRegionList &neighbors)
             {
+                    // ghoxt zone regions are optimized to find gz's for neighboring bin
+                    // so we have to sequentially search the neighboring bins for gz's
+                    // for this bin
                 auto rgnIter = find_if(neighbors.begin(), neighbors.end(), 
                     [=, &dropBin](const pair<short /*  neighbor bin */, GhostZoneRegion> &n) -> bool    {   return n.first == whichBin; });
                 if(rgnIter != neighbors.end())  
@@ -137,6 +164,9 @@ void init_particles( int n, Mesh &p)
                     if(inGZ)    dropBin.gz[static_cast<int>(rgnIter->second)].push_back(newParticle);
                 }
             });
+            
+
+        dropBin.gzl = bgz[whichBin];    // set ghost region list for bin
             
     
         //

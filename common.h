@@ -37,19 +37,20 @@ enum class GhostZoneRegion : char
     num_walls,
     topLeft, topRight, bottomLeft, bottomRight,
 };
-
-using WallRegion = GhostZoneRegion;
 using GZR = GhostZoneRegion;    // shorthand qualifier
 
 using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
 using BinNeighbor = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
 
+using BinGhostZoneList = vector<vector<GhostZoneRegion>>;
+using BinList = map<short, BinGhostZoneList>;
 
 struct Bin
 {
     forward_list<particle_t> content;
     vector<vector<particle_t>> gz{static_cast<int>(GhostZoneRegion::num_walls)};
     vector<particle_t> crossovers;
+    vector<GhostZoneRegion> gzl;    // ghost region list for this bin
     
     float leftWall, rightWall, topWall, bottomWall;
     short binToLeft, binToRight, binToTop, binToBottom, binToUpperLeft, binToUpperRight, binToLowerLeft, binToLowerRight;   // adjacent bin indexes

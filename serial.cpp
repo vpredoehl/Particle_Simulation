@@ -33,7 +33,9 @@ int main( int argc, char **argv )
     int n = read_int( argc, argv, "-n", 1000 );
     extern short binsPerRow, binsPerCol, numThreads;
     extern BinNeighbor neighborBin;
+    extern BinList binGZ;
     extern vector<NeighborRegionList> nr;
+    extern BinGhostZoneList bgz; 
 
         // determine mesh size
     switch(numThreads)
@@ -48,6 +50,7 @@ int main( int argc, char **argv )
             binsPerRow = binsPerCol = 1;
     }
     nr =  neighborBin[numThreads];
+    bgz = binGZ[numThreads];
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
@@ -57,9 +60,12 @@ int main( int argc, char **argv )
     
     Mesh world { numThreads, Bin{} };
 
-    switch(numThreads)  // set adjacent bin indexes 
+    switch(numThreads)  
     {
         case 2:
+                // if there is no adjacent bin ( i.e. because it's a wall,
+                // set to -1 so there is no attempt to set a ghost zone
+                // ( because there is no storage for it )
             world[0].binToLeft = world[0].binToTop = world[0].binToBottom 
                 = world[0].binToUpperLeft = world[0].binToUpperRight 
                 = world[0].binToLowerLeft = world[0].binToLowerRight = -1;
@@ -96,7 +102,7 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
         {
-           // 
+            // 
             // absorb crossovers from other bins first
             //
             for_each(b.crossovers.cbegin(), b.crossovers.cend(), 
@@ -129,10 +135,10 @@ int main( int argc, char **argv )
                 for_each(b.content.begin(), b.content.end(),
                 [&,b](particle_t &p1)
                 {   
-                    auto ApplyForce = [&](const particle_t &p2)   {   apply_force( p1, p2 ,&dmin,&davg,&navg);    };
+                    auto Interact = [&](const particle_t &p2)   {   apply_force( p1, p2 ,&dmin,&davg,&navg);    };
 
                     p1.ax = p1.ay = 0;
-                    for_each(b.content.begin(), b.content.end(),  ApplyForce);
+                    for_each(b.content.begin(), b.content.end(),  Interact);
                         
                         //
                         // apply force in caused by neighboring ghost zones
@@ -141,23 +147,23 @@ int main( int argc, char **argv )
                     {
                             // get right ghost zone for bin to left and apply force
                         vector<particle_t> &rightGZ = world[b.binToLeft].gz[static_cast<int>(GZR::right)];
-                        for_each(rightGZ.begin(), rightGZ.end(), ApplyForce);
+                        for_each(rightGZ.begin(), rightGZ.end(), Interact);
                     }         
                     if(b.binToRight != -1)
                     {
                             // get left ghost zone for bin to right and apply force
                         vector<particle_t> &leftGZ = world[b.binToRight].gz[static_cast<int>(GZR::left)];
-                        for_each(leftGZ.begin(), leftGZ.end(), ApplyForce);
+                        for_each(leftGZ.begin(), leftGZ.end(), Interact);
                     }
                     if(b.binToTop != -1)
                     {
                         vector<particle_t> &bottomGZ = world[b.binToTop].gz[static_cast<int>(GZR::bottom)];
-                        for_each(bottomGZ.begin(), bottomGZ.end(), ApplyForce);
+                        for_each(bottomGZ.begin(), bottomGZ.end(), Interact);
                     }
                     if(b.binToBottom != -1)
                     {
                         vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
-                        for_each(topGZ.begin(), topGZ.end(), ApplyForce);
+                        for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
 //                    if(p1.ax > .1 || p1.ay > .1)    cout << "step: " << step << " a: ( " << p1.ax << ", " << p1.ay << " )" << endl;
                     
@@ -172,38 +178,61 @@ int main( int argc, char **argv )
             [&](Bin &b)
             {        
                 auto  particleIter = b.content.begin(), lastIter = particleIter;    // lastIter is for erase_after so current particle can be deleted
+                
+                    // clear all ghost zone regions so they can be updated
+                    // after particles move
+                for_each(b.gz.begin(), b.gz.end(), [](vector<particle_t> &c)    {   c.clear(); });
+
+                    // iterate through all particles in content container
                 while(particleIter != b.content.end())
                 {        
                     auto& p = *particleIter;
                     move(p);
 
-            bool jumpLeft = p.x < b.leftWall;
-            bool jumpRight = p.x > b.rightWall;
-            bool jumpTop = p.y < b.topWall;
-            bool jumpBottom = p.y > b.bottomWall;
+                    bool jumpLeft = p.x < b.leftWall;
+                    bool jumpRight = p.x > b.rightWall;
+                    bool jumpTop = p.y < b.topWall;
+                    bool jumpBottom = p.y > b.bottomWall;
             
-                // add the particle to the neighboring bin if there  is a crossover
-//            if(jumpLeft)        world[ jumpTop ? b.binToUpperLeft : jumpBottom ? b.binToLowerLeft : b.binToLeft ].crossovers.push_back(p);
-  //          else if(jumpRight)  world[ jumpTop ? b.binToUpperRight : jumpBottom ? b.binToLowerRight : b.binToRight ].crossovers.push_back(p);
-            if(jumpLeft)        world[ b.binToLeft ].crossovers.push_back(p);
-            else if(jumpRight)  world[ b.binToRight ].crossovers.push_back(p);
-            if(jumpTop)    world[ b.binToTop ].crossovers.push_back(p);
-            else if(jumpBottom) world[ b.binToBottom ].crossovers.push_back(p);     
+                        // add the particle to the neighboring bin if there  is a crossover
+                    if(jumpLeft)        world[ jumpTop ? b.binToUpperLeft : jumpBottom ? b.binToLowerLeft : b.binToLeft ].crossovers.push_back(p);
+                    else if(jumpRight)  world[ jumpTop ? b.binToUpperRight : jumpBottom ? b.binToLowerRight : b.binToRight ].crossovers.push_back(p);
+                    if(jumpTop)    world[ b.binToTop ].crossovers.push_back(p);
+                    else if(jumpBottom) world[ b.binToBottom ].crossovers.push_back(p);     
             
-            if(jumpLeft || jumpRight || jumpTop || jumpBottom)
-            {
-                    // particle left jumped - delete it from this bin
-//                cout << "step: " << step << " BinSize: " << list_size(b.content) << "  Crossover ( " << p.x << ", " << p.y << " ), ( vx: " << p.vx << ", " << " vy: " << p.vy << " )  jumpLeft: " << jumpLeft << " jumpRight: " << jumpRight << " jumpTop: " << jumpTop << " jumpBottom: " << jumpBottom << endl;
-                if(lastIter == particleIter)
-                {
-                    b.content.pop_front();  // happened to be the first in the list
-                    lastIter = particleIter = b.content.begin();    // reset iterators
-                }
-                else particleIter = b.content.erase_after(lastIter);
-                continue;
-            }
-            lastIter = particleIter++;
-        };
+                    if(jumpLeft || jumpRight || jumpTop || jumpBottom)
+                            // particle left jumped - delete it from this bin
+                        if(lastIter == particleIter)
+                        {
+                            b.content.pop_front();  // happened to be the first in the list
+                            lastIter = particleIter = b.content.begin();    // reset iterators
+                        }
+                        else particleIter = b.content.erase_after(lastIter);
+                    else
+                    {
+                            // ghost zone maintentance
+                        bool inLeftGZ = p.x < b.leftWall + cutoff;
+                        bool inRightGZ = p.x > b.leftWall - cutoff;
+                        bool inTopGZ = p.y < b.topWall + cutoff;
+                        bool inBottomGZ = p.y > b.bottomWall - cutoff;
+                        
+                            // check each enumerated ghost zone in the list ( gzl ) and add
+                            // particle if it is in it
+                        for_each(b.gzl.cbegin(), b.gzl.cend(),
+                            [&,inLeftGZ,inRightGZ, inTopGZ, inBottomGZ](GhostZoneRegion r)
+                            {
+                                switch(r)
+                                {
+                                    case GZR::left:     if(inLeftGZ)    b.gz[static_cast<int>(r)].push_back(p);     break;
+                                    case GZR::right:    if(inRightGZ)   b.gz[static_cast<int>(r)].push_back(p);     break;
+                                    case GZR::top:      if(inTopGZ)     b.gz[static_cast<int>(r)].push_back(p);     break;                                    
+                                    case GZR::bottom:   if(inBottomGZ)  b.gz[static_cast<int>(r)].push_back(p);     break;
+                                }
+                            });
+                    
+                        lastIter = particleIter++;  // go to the next particle
+                    }
+                };
 
         if( find_option( argc, argv, "-no" ) == -1 )
         {
