@@ -212,7 +212,7 @@ int main( int argc, char **argv )
                     {
                             // ghost zone maintentance
                         bool inLeftGZ = p.x < b.leftWall + cutoff;
-                        bool inRightGZ = p.x > b.leftWall - cutoff;
+                        bool inRightGZ = p.x > b.rightWall - cutoff;
                         bool inTopGZ = p.y < b.topWall + cutoff;
                         bool inBottomGZ = p.y > b.bottomWall - cutoff;
                         
