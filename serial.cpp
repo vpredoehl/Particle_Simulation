@@ -165,7 +165,7 @@ int main( int argc, char **argv )
                         vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
                         for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
-//                    if(p1.ax > .1 || p1.ay > .1)    cout << "step: " << step << " a: ( " << p1.ax << ", " << p1.ay << " )" << endl;
+                    if(p1.ax > .1 || p1.ay > .1)    cout << "step: " << step << " id: " << p1.id << "  a: ( " << p1.ax << ", " << p1.ay << " )" << endl;
                     
                 }); 
         });

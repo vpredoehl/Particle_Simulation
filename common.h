@@ -21,7 +21,8 @@ const int SAVEFREQ = 10;
 //
 // particle data structure
 //
-typedef struct 
+//typedef struct 
+struct particle_t
 {
   double x;
   double y;
@@ -29,7 +30,11 @@ typedef struct
   double vy;
   double ax;
   double ay;
-} particle_t;
+  
+  short id;
+  particle_t()  {   id = cnt++; }
+  static short cnt;
+};//particle_t;
 
 enum class GhostZoneRegion : char   
 {
