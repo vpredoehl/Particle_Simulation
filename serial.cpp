@@ -2,17 +2,18 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include "logging.h"
 #include "common.h"
 
-#include <iostream>
 #include <algorithm>
 
 using namespace std;
 //
 //  benchmarking program
 //
-template<class T>
-inline short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
+
+LogLevel ll = LL::none; //LL::content | LL::gz; // specify log level
+
 
 int main( int argc, char **argv )
 {    
@@ -102,23 +103,34 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
         {
+            if((ll & LL::content) != LL::none)    cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            
+            auto contentIter = b.content.cbegin();
+            while(contentIter != b.content.cend())
+            {
+                auto v = *contentIter;
+                if(find(++contentIter,b.content.cend(), v) != b.content.cend())
+                    cout << "Step: " << step << " unique content test failed: " << v << endl;
+            }
+
+            
             // 
             // absorb crossovers from other bins first
             //
             for_each(b.crossovers.cbegin(), b.crossovers.cend(), 
-          [step,&b](const particle_t &p)
-          {
-                 // place new particle in appropriate ghost zone for this bin
-                 // so interaction in neighboring bin is not affected
-             if(p.x < b.leftWall + cutoff) b.gz[static_cast<int>(GZR::left)].push_back(p);
-             else if(p.x > b.rightWall - cutoff) b.gz[static_cast<int>(GZR::right)].push_back(p);
-             if(p.y < b.topWall + cutoff) b.gz[static_cast<int>(GZR::top)].push_back(p);
-             else if(p.y > b.bottomWall - cutoff) b.gz[static_cast<int>(GZR::bottom)].push_back(p);
+                [step,&b](const particle_t &p)
+            {
+                    // place new particle in appropriate ghost zone for this bin
+                    // so interaction in neighboring bin is not affected
+                if(p.x < b.leftWall + cutoff) b.gz[static_cast<int>(GZR::left)].push_back(p);
+                else if(p.x > b.rightWall - cutoff) b.gz[static_cast<int>(GZR::right)].push_back(p);
+                if(p.y < b.topWall + cutoff) b.gz[static_cast<int>(GZR::top)].push_back(p);
+                else if(p.y > b.bottomWall - cutoff) b.gz[static_cast<int>(GZR::bottom)].push_back(p);
           
-                  // then add new particle to this bin's content list
-             b.content.push_front(p);    
-           });
-            cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
+                    // then add new particle to this bin's content list
+                b.content.push_front(p);    
+            });
+            //cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
             b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
         });
         
@@ -132,13 +144,18 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
         [&](Bin &b)
         {          
-                for_each(b.content.begin(), b.content.end(),
-                [&,b](particle_t &p1)
-                {   
-                    auto Interact = [&](const particle_t &p2)   {   apply_force( p1, p2 ,&dmin,&davg,&navg);    };
+            auto particleIter = b.content.begin();
 
-                    p1.ax = p1.ay = 0;
-                    for_each(b.content.begin(), b.content.end(),  Interact);
+            if((ll & LL::content) != LL::none)    cout << "Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            
+            while(particleIter != b.content.end())
+            {
+                auto& p1 = *particleIter;                
+                auto Interact = [&](const particle_t &p2)   {   apply_force( p1, p2 ,&dmin,&davg,&navg);    };
+                forward_list<particle_t>::const_iterator neighborIter = particleIter;
+
+                p1.ax = p1.ay = 0;
+                for_each(++neighborIter, b.content.cend(),  Interact);
                         
                         //
                         // apply force in caused by neighboring ghost zones
@@ -165,9 +182,11 @@ int main( int argc, char **argv )
                         vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
                         for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
-                    if(p1.ax > .1 || p1.ay > .1)    cout << "step: " << step << " id: " << p1.id << "  a: ( " << p1.ax << ", " << p1.ay << " )" << endl;
-                    
-                }); 
+                    //if((fabsf(p1.vx) > 2 || fabsf(p1.vy) > 2) && (fabsf(p1.ax) > 5 || fabsf(p1.ay) > 5))    
+                    cout << "step: " << step << " " << p1 << endl;
+
+                particleIter++;                    
+            }
         });
 
  
@@ -181,9 +200,12 @@ int main( int argc, char **argv )
                 
                     // clear all ghost zone regions so they can be updated
                     // after particles move
-                for_each(b.gz.begin(), b.gz.end(), [](vector<particle_t> &c)    {   c.clear(); });
+                for_each(b.gz.begin(), b.gz.end(), [](vector<particle_t> &c)    {   c.clear();  });
 
-                    // iterate through all particles in content container
+                if((ll & LL::content) != LL::none)    cout << "Move: Step " << step << ": bin id: " << b.id << endl << b << endl;
+
+
+                    // iterate through particles in content container
                 while(particleIter != b.content.end())
                 {        
                     auto& p = *particleIter;
@@ -207,7 +229,11 @@ int main( int argc, char **argv )
                             b.content.pop_front();  // happened to be the first in the list
                             lastIter = particleIter = b.content.begin();    // reset iterators
                         }
-                        else particleIter = b.content.erase_after(lastIter);
+                        else 
+                        {
+                            particleIter = b.content.erase_after(lastIter); // IMPLEMENTATION BUG:  Doesn't return element after one erased.  Returns first element in list instead
+                            particleIter = std::next(lastIter);
+                        }
                     else
                     {
                             // ghost zone maintentance
@@ -217,41 +243,70 @@ int main( int argc, char **argv )
                         bool inBottomGZ = p.y > b.bottomWall - cutoff;
                         
                             // check each enumerated ghost zone in the list ( gzl ) and add
-                            // particle if it is in it
+                            // particle if it is in ghost zone
                         for_each(b.gzl.cbegin(), b.gzl.cend(),
                             [&,inLeftGZ,inRightGZ, inTopGZ, inBottomGZ](GhostZoneRegion r)
                             {
+                                auto gzIter = find_if(b.gz[static_cast<int>(r)].cbegin(), b.gz[static_cast<int>(r)].cend(),
+                                    [p](particle_t v) -> bool    {   return p.id == v.id;   });
+                               
                                 switch(r)
                                 {
-                                    case GZR::left:     if(inLeftGZ)    b.gz[static_cast<int>(r)].push_back(p);     break;
-                                    case GZR::right:    if(inRightGZ)   b.gz[static_cast<int>(r)].push_back(p);     break;
-                                    case GZR::top:      if(inTopGZ)     b.gz[static_cast<int>(r)].push_back(p);     break;                                    
-                                    case GZR::bottom:   if(inBottomGZ)  b.gz[static_cast<int>(r)].push_back(p);     break;
+                                    case GZR::left:     
+                                        if(inLeftGZ)    
+                                        {
+                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  
+                                                cout << "pushing duplicate gz L  " << p << endl;
+                                            b.gz[static_cast<int>(r)].push_back(p);
+                                        }
+                                        break;
+                                    case GZR::right:    
+                                        if(inRightGZ)
+                                        {
+                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  
+                                                cout << "pushing duplicate gz R  " << p << endl;
+                                            b.gz[static_cast<int>(r)].push_back(p);
+                                        }
+                                        break;
+                                    case GZR::top:      
+                                        if(inTopGZ)
+                                        {
+                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz T  " << p << endl;
+                                            b.gz[static_cast<int>(r)].push_back(p);
+                                        }
+                                        break;                                    
+                                    case GZR::bottom:   
+                                        if(inBottomGZ)  
+                                        {
+                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz B  " << p << endl;
+                                            b.gz[static_cast<int>(r)].push_back(p);
+                                        }
+                                        break;
                                 }
                             });
                     
                         lastIter = particleIter++;  // go to the next particle
                     }
-                };
+                }   // while
 
-        if( find_option( argc, argv, "-no" ) == -1 )
-        {
-          //
-          // Computing statistical data
-          //
-          if (navg) {
-            absavg +=  davg/navg;
-            nabsavg++;
-          }
-          if (dmin < absmin) absmin = dmin;
+                if( find_option( argc, argv, "-no" ) == -1 )
+                {
+                    //
+                    // Computing statistical data
+                    //
+                    if (navg) {
+                        absavg +=  davg/navg;
+                        nabsavg++;
+                    }
+                    if (dmin < absmin) absmin = dmin;
 		
-          //
-          //  save if necessary
-          //
-          if( fsave && (step%SAVEFREQ) == 0 )
-              save( fsave, n, world );
-        }
-    });
+                    //
+                    //  save if necessary
+                    //
+                    if( fsave && (step%SAVEFREQ) == 0 )
+                        save( fsave, n, world );
+                }
+        });
   }
     simulation_time = read_timer( ) - simulation_time;
     

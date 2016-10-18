@@ -1,3 +1,6 @@
+#include "logging.h"
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -10,6 +13,7 @@
 
 #include <algorithm>
 #include <iostream>
+
 
 using namespace std;
 
@@ -169,7 +173,7 @@ void init_particles( int n, Mesh &p)
             
 
         dropBin.gzl = bgz[whichBin];    // set ghost region list for bin
-            
+        dropBin.id = whichBin;
     
         //
         //  assign random velocities within a bound
@@ -193,6 +197,7 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     double r2 = dx * dx + dy * dy;
     if( r2 > cutoff*cutoff )
         return;
+    
 	if (r2 != 0)
         {
 	   if (r2/(cutoff*cutoff) < *dmin * (*dmin))
@@ -212,6 +217,14 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     double coef = ( 1 - cutoff / r ) / r2 / mass;
     particle.ax += coef * dx;
     particle.ay += coef * dy;
+
+    return;
+    if(particle.id != neighbor.id)
+    {
+        cout << "Interaction\t " << particle << endl;
+        cout << "\t\t " << neighbor << endl;
+    }
+
 }
 
 //
@@ -235,11 +248,13 @@ void move( particle_t &p )
     {
         p.x  = p.x < 0 ? -p.x : 2*size-p.x;
         p.vx = -p.vx;
+//        if(p.id == 3)   cout << "Bounce H:  id: " << p << endl;
     }
     while( p.y < 0 || p.y > size )
     {
         p.y  = p.y < 0 ? -p.y : 2*size-p.y;
         p.vy = -p.vy;
+  //      if(p.id == 3)   cout << "Bounce V:  id: " << p << endl;
     }
 }
 

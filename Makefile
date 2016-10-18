@@ -6,7 +6,7 @@
 CC = icpc
 MPCC = mpicxx
 OPENMP = -openmp
-CFLAGS = -g -std=c++11
+CFLAGS = -O3 -g -std=c++11
 LIBS =
 
 
@@ -14,8 +14,8 @@ TARGETS = serial pthreads openmp mpi autograder
 
 all:	$(TARGETS)
 
-serial: serial.o common.o
-	$(CC) -o $@ $(LIBS) serial.o common.o
+serial: serial.o common.o logging.o
+	$(CC) -o $@ $(LIBS) serial.o common.o logging.o
 autograder: autograder.o common.o
 	$(CC) -o $@ $(LIBS) autograder.o common.o
 pthreads: pthreads.o common.o
@@ -25,12 +25,14 @@ openmp: openmp.o common.o
 mpi: mpi.o common.o
 	$(MPCC) -o $@ $(LIBS) $(MPILIBS) mpi.o common.o
 
+logging.o:	logging.cpp logging.h
+	$(CC) -c $(CFLAGS) logging.cpp
 autograder.o: autograder.cpp common.h
 	$(CC) -c $(CFLAGS) autograder.cpp
 openmp.o: openmp.cpp common.h
 	$(CC) -c $(OPENMP) $(CFLAGS) openmp.cpp
-serial.o: serial.cpp common.h
-	$(CC) -c $(CFLAGS) serial.cpp
+serial.o: serial.cpp common.h logging.h
+	$(CC) -c $(CFLAGS) serial.cpp 
 pthreads.o: pthreads.cpp common.h
 	$(CC) -c $(CFLAGS) pthreads.cpp
 mpi.o: mpi.cpp common.h

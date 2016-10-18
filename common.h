@@ -59,6 +59,8 @@ struct Bin
     
     float leftWall, rightWall, topWall, bottomWall;
     short binToLeft, binToRight, binToTop, binToBottom, binToUpperLeft, binToUpperRight, binToLowerLeft, binToLowerRight;   // adjacent bin indexes
+    
+    short id;
 };
 
 using Mesh = vector<Bin>;
@@ -102,7 +104,5 @@ char *read_string( int argc, char **argv, const char *option, char *default_valu
 #define cutoff  0.01
 #define min_r   (cutoff/100)
 #define dt      0.0005
-
-
 
 #endif
