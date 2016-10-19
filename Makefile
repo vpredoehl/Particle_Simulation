@@ -6,7 +6,7 @@
 CC = icpc
 MPCC = mpicxx
 OPENMP = -openmp
-CFLAGS = -O3 -g -std=c++11
+CFLAGS = -g -std=c++11
 LIBS =
 
 
@@ -25,7 +25,7 @@ openmp: openmp.o common.o
 mpi: mpi.o common.o
 	$(MPCC) -o $@ $(LIBS) $(MPILIBS) mpi.o common.o
 
-logging.o:	logging.cpp logging.h
+logging.o:	logging.cpp logging.h common.h
 	$(CC) -c $(CFLAGS) logging.cpp
 autograder.o: autograder.cpp common.h
 	$(CC) -c $(CFLAGS) autograder.cpp
