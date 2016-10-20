@@ -103,7 +103,7 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
         {
-            if((ll & LL::content) != LL::none)    cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            if(LogLevel(LL::content))    cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;
             
             for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
             {
@@ -129,7 +129,7 @@ int main( int argc, char **argv )
                     // then add new particle to this bin's content list
                 b.content.push_front(p);    
             });
-            if((ll & LL::crossover) != LL::none)   cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
+            if(LogLevel(LL::crossover))   cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
             b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
         });
         
@@ -145,7 +145,7 @@ int main( int argc, char **argv )
         {          
             auto particleIter = b.content.begin();
 
-            if((ll & LL::content) != LL::none)    cout << "Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            if(LogLevel(LL::content))    cout << "Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
             
             while(particleIter != b.content.end())
             {
@@ -205,7 +205,7 @@ int main( int argc, char **argv )
                     // after particles move
                 for_each(b.gz.begin(), b.gz.end(), [](vector<particle_t> &c)    {   c.clear();  });
 
-                if((ll & LL::content) != LL::none)    cout << "Move: Step " << step << ": bin id: " << b.id << endl << b << endl;
+                if(LogLevel(LL::content))    cout << "Move: Step " << step << ": bin id: " << b.id << endl << b << endl;
 
 
                     // iterate through particles in content container
