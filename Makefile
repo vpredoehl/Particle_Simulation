@@ -37,7 +37,7 @@ pthreads.o: pthreads.cpp common.h
 	$(CC) -c $(CFLAGS) pthreads.cpp
 mpi.o: mpi.cpp common.h
 	$(MPCC) -c $(CFLAGS) mpi.cpp
-common.o: common.cpp common.h
+common.o: common.cpp common.h logging.h
 	$(CC) -c $(CFLAGS) common.cpp
 
 clean:
