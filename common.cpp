@@ -180,6 +180,8 @@ void init_particles( int n, Mesh &p)
         //
         newParticle.vx = drand48()*2-1;
         newParticle.vy = drand48()*2-1;
+        
+        newParticle.ax = newParticle.ay = 0;
 
         dropBin.content.push_front(newParticle);   
     }
@@ -212,14 +214,13 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     
 	
     //
-    //  very simple short-range repulsive force
+    //  very simple short-range repulsive force 
     //
     double coef = ( 1 - cutoff / r ) / r2 / mass;
     particle.ax += coef * dx;
     particle.ay += coef * dy;
 
-    return;
-    if(particle.id != neighbor.id)
+    if(LogLevel(LL::interaction) && particle.id != neighbor.id)
     {
         cout << "Interaction\t " << particle << endl;
         cout << "\t\t " << neighbor << endl;
@@ -248,13 +249,13 @@ void move( particle_t &p )
     {
         p.x  = p.x < 0 ? -p.x : 2*size-p.x;
         p.vx = -p.vx;
-//        if(p.id == 3)   cout << "Bounce H:  id: " << p << endl;
+        if(LogLevel(LL::bounce))     cout << "Bounce H:  id: " << p << endl;
     }
     while( p.y < 0 || p.y > size )
     {
         p.y  = p.y < 0 ? -p.y : 2*size-p.y;
         p.vy = -p.vy;
-  //      if(p.id == 3)   cout << "Bounce V:  id: " << p << endl;
+        if(LogLevel(LL::bounce))    cout << "Bounce V:  id: " << p << endl;
     }
 }
 

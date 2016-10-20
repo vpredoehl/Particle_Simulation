@@ -189,14 +189,17 @@ int main( int argc, char **argv )
         });
             // run serial run test for apply_force after each bin
             // has completed its update
-        srt.interact(apply_force);
-            // and compare
-        if(srt != world)    cout << "srt diverged: step " << step << endl;
+        if(LogLevel(LL::serialruntest))
+        {
+            srt.interact(apply_force);
+                // and compare
+            if(srt != world)    cout << "srt apply_force diverged: step " << step << endl;
+        }
  
         //
         //  move particles
         //
-        for_each(world.begin(), world.end(), 
+        for_each(world.begin(), world.end(),  
             [&](Bin &b)
             {        
                 auto  particleIter = b.content.begin(), lastIter = particleIter;    // lastIter is for erase_after so current particle can be deleted
@@ -226,7 +229,9 @@ int main( int argc, char **argv )
                     else if(jumpBottom) world[ b.binToBottom ].crossovers.push_back(p);     
             
                     if(jumpLeft || jumpRight || jumpTop || jumpBottom)
+                    {
                             // particle left jumped - delete it from this bin
+                        if(LogLevel(LL::crossover)) cout << "Crossover: " << p << endl;
                         if(lastIter == particleIter)
                         {
                             b.content.pop_front();  // happened to be the first in the list
@@ -237,6 +242,7 @@ int main( int argc, char **argv )
                             particleIter = b.content.erase_after(lastIter); // IMPLEMENTATION BUG:  Doesn't return element after one erased.  Returns first element in list instead
                             particleIter = std::next(lastIter);
                         }
+                    }
                     else
                     {
                             // ghost zone maintentance
@@ -310,6 +316,17 @@ int main( int argc, char **argv )
                         save( fsave, n, world );
                 }
         });
+        if(LogLevel(LL::serialruntest))
+        {
+            srt.move(::move);
+                // and compare
+            if(LogLevel(LL::content))
+            {
+                cout << "Mesh contents: " << world << endl;
+                cout << "srt move contents: " << endl << srt.srtWorld << endl;
+            }
+            if(srt != world)    cout << "srt move diverged: step " << step << endl;
+        }
   }
     simulation_time = read_timer( ) - simulation_time;
     

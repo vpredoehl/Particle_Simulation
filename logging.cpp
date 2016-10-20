@@ -3,7 +3,7 @@
 using namespace std;
 
 ostream& operator<<(ostream& o, particle_t t)   {   o << "id: " << t.id << " a: ( " << t.ax << ", " << t.ay << " )" << " v: ( " << t.vx << ", " << t.vy << " )" << " ( " << t.x << ", " << t.y << " )"; return o;  }
-bool operator==(particle_t p1, particle_t p2)   {   return p1.id == p2.id /* && p1.ax == p2.ax && p1.ay == p2.ay */ && p1.vx == p2.vx && p1.vy == p2.vy;  }
+bool operator==(particle_t p1, particle_t p2)   {   return p1.id == p2.id && p1.ax == p2.ax && p1.ay == p2.ay && p1.vx == p2.vx && p1.vy == p2.vy;  }
 
 ostream& operator<<(ostream& o, const Bin& b)
 {
@@ -35,7 +35,8 @@ void SerialRunTest::interact(ApplyForceFunct interact)
     while(particleIter != srtWorld.end())
     {
         auto& p1 = *particleIter;
-        
+
+        p1.ax = p1.ay = 0;
         for_each(++particleIter, srtWorld.end(), [this, &p1, interact](const particle_t &neighbor)
             {
                 interact(p1, neighbor, &dmin,&davg,&navg);
@@ -58,13 +59,16 @@ bool SerialRunTest::operator!=(const Mesh &w) const
 
     bool fail = false;
     for(auto diffIter = srtWorld.cbegin(); diffIter != srtWorld.cend(); diffIter++)    
-    {
-        p2 = w2[diffIter->id];
-        if(*diffIter != p2)
+        if(auto findIter = w2.find(diffIter->id) != w2.cend())
         {
-            cout << "SRT failed: srt id: " << *diffIter << endl << "\t and id: " << p2 << endl;
-            fail = true;
+            auto p1 = *diffIter;
+            p2 = w2[diffIter->id];
+            if(*diffIter != p2)
+            {
+                cout << "failed: srt " << *diffIter << endl << "\t and " << p2 << endl;
+                fail = true;
+            }
         }
-    }
+    
     return fail;
 }
