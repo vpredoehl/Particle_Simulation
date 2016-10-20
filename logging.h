@@ -1,0 +1,63 @@
+#ifndef LOGGING_H
+#define LOGGING_H
+
+#include "common.h"
+#include <iostream>
+#include <algorithm>
+#include <forward_list>
+#include <map>
+#include <functional>
+
+using std::forward_list;
+using std::ostream;
+using std::vector;
+using std::cout;
+using std::map;
+using std::function;
+
+ostream& operator<<(ostream& o, particle_t t);
+ostream& operator<<(ostream& o, const Bin& b);
+bool operator==(particle_t, particle_t);
+inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
+
+template<class T>   short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
+template<class T>   ostream& operator<<(ostream& o, const vector<T> &v)    {   for_each(v.cbegin(), v.cend(), [&o](T p) {   o << p << endl; }); return o;   }
+template<class T>   ostream& operator<<(ostream& o, const forward_list<T> &v)   {   for_each(v.cbegin(), v.cend(), [&o](T p)    {   o << p << endl; }); return o;   }
+
+
+enum class LogFlags : char
+{
+    none = 0,
+    content = 1,
+    gz = 2,
+    crossover = 4,
+    interaction = 8,
+    applyforce = 16
+};
+using LL = LogFlags;    // shorthand alias 
+
+constexpr LogFlags operator|(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) | static_cast<int>(l2)); }
+constexpr LogFlags operator&(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) & static_cast<int>(l2)); }
+constexpr bool operator==(LogFlags l1, LogFlags l2) {   return true;    }
+
+constexpr LogFlags ll = LL::crossover | LL::gz;
+constexpr bool LogLevel(LogFlags f)  {   return static_cast<bool>(ll & f);    }
+
+
+using ApplyForceFunct = function<void( particle_t&, const particle_t& , double*, double*, int*)>;
+class SerialRunTest // container for serial run to compare against multi-bin run
+{
+    forward_list<particle_t> srtWorld;
+    int navg,nabsavg=0;
+    double davg,dmin, absmin=1.0, absavg=0.0;
+
+    public:
+        SerialRunTest(const Mesh&);
+        
+        void move(function<void(particle_t)> move) {   for_each(srtWorld.begin(), srtWorld.end(), move); }
+        void interact(ApplyForceFunct);
+        bool operator!=(const Mesh&)  const;
+};
+
+
+#endif
