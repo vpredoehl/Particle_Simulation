@@ -12,9 +12,6 @@ using namespace std;
 //  benchmarking program
 //
 
-LogLevel ll = LL::none; //LL::content | LL::gz; // specify log level
-
-
 int main( int argc, char **argv )
 {    
     int navg,nabsavg=0;
@@ -81,6 +78,9 @@ int main( int argc, char **argv )
 
     set_size( n );
     init_particles( n, world );
+
+        // run serial test side by side to compare results with multi-bin run
+    SerialRunTest srt{world};
     
     if( fsum) 
     {
@@ -105,8 +105,7 @@ int main( int argc, char **argv )
         {
             if((ll & LL::content) != LL::none)    cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;
             
-            auto contentIter = b.content.cbegin();
-            while(contentIter != b.content.cend())
+            for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
             {
                 auto v = *contentIter;
                 if(find(++contentIter,b.content.cend(), v) != b.content.cend())
@@ -130,7 +129,7 @@ int main( int argc, char **argv )
                     // then add new particle to this bin's content list
                 b.content.push_front(p);    
             });
-            //cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
+            if((ll & LL::crossover) != LL::none)   cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
             b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
         });
         
@@ -183,12 +182,16 @@ int main( int argc, char **argv )
                         for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
                     //if((fabsf(p1.vx) > 2 || fabsf(p1.vy) > 2) && (fabsf(p1.ax) > 5 || fabsf(p1.ay) > 5))    
-                    cout << "step: " << step << " " << p1 << endl;
+//                    cout << "step: " << step << " " << p1 << endl;
 
                 particleIter++;                    
             }
         });
-
+            // run serial run test for apply_force after each bin
+            // has completed its update
+        srt.interact(apply_force);
+            // and compare
+        if(srt != world)    cout << "srt diverged: step " << step << endl;
  
         //
         //  move particles
