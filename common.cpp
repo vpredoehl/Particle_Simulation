@@ -111,7 +111,7 @@ void set_size( int n )
 void init_particles( int n, Mesh &p, particle_t *particles)
 {
     auto tt = time ( NULL );
-    srand48( 1476662249 );
+    srand48( tt );
     cout << "Seed: " << tt << endl;
     
     int sx = (int)ceil(sqrt((double)n));

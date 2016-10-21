@@ -136,6 +136,7 @@ int main( int argc, char **argv )
                 for(int i = 0; i<s; i++) cout << particles[i] << endl;
             }
         }
+        if(LogLevel(LL::step)) cout << "Begin step: " << step << endl;
   
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
