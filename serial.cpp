@@ -113,6 +113,7 @@ int main( int argc, char **argv )
             {
                 particles[i].ax = particles[i].ay = 0;
                 for (int j = 0; j < n; j++ )
+//                for (int j = i+1; j < n; j++ )
                     apply_force( particles[i], particles[j],&dmin_stock,&davg_stock,&navg_stock);
             }
      
@@ -167,6 +168,7 @@ int main( int argc, char **argv )
             if(LogLevel(LL::crossover))   cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
             b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
         });
+			// BARRIER: absorb crossovers
         
 	navg = 0;
         davg = 0.0;
@@ -190,7 +192,7 @@ int main( int argc, char **argv )
                 forward_list<particle_t>::const_iterator neighborIter = particleIter;
 
                 p1.ax = p1.ay = 0;
-                for_each(++neighborIter, b.content.cend(),  Interact);
+                for_each(b.content.cbegin(), b.content.cend(),  Interact);
                         
                         //
                         // apply force in caused by neighboring ghost zones
@@ -223,6 +225,8 @@ int main( int argc, char **argv )
                 particleIter++;                    
             }
         });
+			// BARRIER:  compute forces
+
             // run serial run test for apply_force after each bin
             // has completed its update
         if(LogLevel(LL::serialruntest))
@@ -354,6 +358,8 @@ int main( int argc, char **argv )
                         save( fsave, n, world );
                 }
         });
+			// BARRIER:  move
+
         if(LogLevel(LL::serialruntest))
         {
             srt.move(::move);

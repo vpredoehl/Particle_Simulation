@@ -32,13 +32,12 @@ SerialRunTest::SerialRunTest(const Mesh &m)
 
 void SerialRunTest::interact(ApplyForceFunct interact)
 {
-    auto particleIter = srtWorld.begin();
-    while(particleIter != srtWorld.end())
+    for(auto particleIter = srtWorld.begin(); particleIter != srtWorld.end(); particleIter++)
     {
         auto& p1 = *particleIter;
 
         p1.ax = p1.ay = 0;
-        for_each(++particleIter, srtWorld.end(), [this, &p1, interact](const particle_t &neighbor)
+        for_each(srtWorld.cbegin(), srtWorld.cend(), [this, &p1, interact](const particle_t &neighbor)
             {
                 interact(p1, neighbor, &dmin,&davg,&navg);
             });
