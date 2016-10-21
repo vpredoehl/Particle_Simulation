@@ -236,6 +236,7 @@ int main( int argc, char **argv )
             srt.interact(apply_force);
                 // and compare
             if(LogLevel(LL::interaction) && srt != world)    cout << "srt apply_force diverged: step " << step << endl;
+            if(LogLevel(LL::interaction) && srt != particles)    cout << "stock code apply_force diverged: step " << step << endl;
         }
  
         //
@@ -372,7 +373,7 @@ int main( int argc, char **argv )
                 cout << "srt move contents: " << endl << srt.srtWorld << endl;
             }
             if(particles)   stockIter(step);    // run actual stock code
-            if(srt != particles)    cout << "stock code diverged: step " << step << endl;
+            if(srt != particles)    cout << "stock code move diverged: step " << step << endl;
             if(srt != world)    cout << "srt move diverged: step " << step << endl;
             
         }
