@@ -45,6 +45,25 @@ void SerialRunTest::interact(ApplyForceFunct interact)
     }
 }
 
+bool SerialRunTest::operator!=(const particle_t *particles) const
+{
+    short n = list_size(srtWorld);
+    bool fail = false;
+    
+    for(int i = 0; i < n; i++)
+    {
+        auto findIter = find_if(srtWorld.cbegin(), srtWorld.cend(),
+            [=](particle_t p)    {   return p.id == particles[i].id; });
+       
+        if(findIter != srtWorld.cend() && *findIter != particles[i])
+        {
+            cout << "Stock code diverged " << particles[i] << endl << "\t\tsrt " << *findIter << endl;
+            fail = true;
+        }
+    }
+    return fail;
+}
+
 bool SerialRunTest::operator!=(const Mesh &w) const
 {
     map<short, particle_t> w2;

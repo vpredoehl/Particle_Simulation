@@ -108,7 +108,7 @@ void set_size( int n )
 //
 //  Initialize the particle positions and velocities
 //
-void init_particles( int n, Mesh &p)
+void init_particles( int n, Mesh &p, particle_t *particles)
 {
     auto tt = time ( NULL );
     srand48( 1476662249 );
@@ -184,6 +184,7 @@ void init_particles( int n, Mesh &p)
         newParticle.ax = newParticle.ay = 0;
 
         dropBin.content.push_front(newParticle);   
+        if(particles)   particles[i] = newParticle; // initialize stock code-style particle
     }
     free( shuffle );
 }

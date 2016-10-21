@@ -12,10 +12,16 @@ using namespace std;
 //  benchmarking program
 //
 
+
+
 int main( int argc, char **argv )
 {    
     int navg,nabsavg=0;
     double davg,dmin, absmin=1.0, absavg=0.0;
+
+    int navg_stock,nabsavg_stock=0;
+    double davg_stock,dmin_stock, absmin_stock=1.0, absavg_stock=0.0;
+
 
     if( find_option( argc, argv, "-h" ) >= 0 )
     {
@@ -76,8 +82,9 @@ int main( int argc, char **argv )
             break;
     }    
 
+    particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
     set_size( n );
-    init_particles( n, world );
+    init_particles( n, world, particles );
 
         // run serial test side by side to compare results with multi-bin run
     SerialRunTest srt{world};
@@ -97,14 +104,42 @@ int main( int argc, char **argv )
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
+    auto stockIter = [=,&dmin_stock, &davg_stock, &navg_stock](int step)
+        {
+            //
+            //  compute forces
+            //
+            for( int i = 0; i < n; i++ )
+            {
+                particles[i].ax = particles[i].ay = 0;
+                for (int j = 0; j < n; j++ )
+                    apply_force( particles[i], particles[j],&dmin_stock,&davg_stock,&navg_stock);
+            }
+     
+            //
+            //  move particles
+            //
+            for( int i = 0; i < n; i++ ) 
+                move( particles[i] );		
+        };
+    
 	
  for( int step = 0; step < NSTEPS; step++ )
   {
+        if(LogLevel(LL::content))
+        {
+            short s = list_size(srt.srtWorld);
+            if(particles)
+            {
+                cout << "Stock particles: " << endl;
+                for(int i = 0; i<s; i++) cout << particles[i] << endl;
+            }
+        }
+  
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
         {
-            if(LogLevel(LL::content))    cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;
-            
+            if(LogLevel(LL::content))   cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;            
             for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
             {
                 auto v = *contentIter;
@@ -329,9 +364,12 @@ int main( int argc, char **argv )
                 cout << "Mesh contents: " << world << endl;
                 cout << "srt move contents: " << endl << srt.srtWorld << endl;
             }
+            if(particles)   stockIter(step);    // run actual stock code
+            if(srt != particles)    cout << "stock code diverged: step " << step << endl;
             if(srt != world)    cout << "srt move diverged: step " << step << endl;
+            
         }
-  }
+  } // for
     simulation_time = read_timer( ) - simulation_time;
     
     printf( "n = %d, simulation time = %g seconds", n, simulation_time);
@@ -379,6 +417,8 @@ int main( int argc, char **argv )
         fclose( fsum );    
     if( fsave )
         fclose( fsave );
+    if(particles)   free(particles);        
+
     
     return 0;
 }

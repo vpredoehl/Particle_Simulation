@@ -15,8 +15,11 @@ using std::cout;
 using std::map;
 using std::function;
 
+    // stream
 ostream& operator<<(ostream&, particle_t);
 ostream& operator<<(ostream&, const Bin&);
+
+    // comparators
 bool operator==(particle_t, particle_t);
 inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
 inline bool operator<(particle_t a, particle_t b)  {   return a.id < b.id; }
@@ -44,7 +47,7 @@ constexpr LogFlags operator|(LogFlags l1,  LogFlags l2)  {   return static_cast<
 constexpr LogFlags operator&(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) & static_cast<int>(l2)); }
 constexpr bool operator==(LogFlags l1, LogFlags l2) {   return true;    }
 
-constexpr LogFlags ll = LL::content | LL::gz | LL::interaction | LL::serialruntest | LL::bounce;
+constexpr LogFlags ll = LL::content | LL::crossover | LL::gz | LL::interaction | LL::serialruntest;
 constexpr bool LogLevel(LogFlags f)  {   return static_cast<bool>(ll & f);    }
 
 
@@ -62,6 +65,7 @@ class SerialRunTest // container for serial run to compare against multi-bin run
         void move(function<void(particle_t&)> move) {   for_each(srtWorld.begin(), srtWorld.end(), move); }
         void interact(ApplyForceFunct);
         bool operator!=(const Mesh&)  const;
+        bool operator!=(const particle_t*) const;
 };
 
 
