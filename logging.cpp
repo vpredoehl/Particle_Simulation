@@ -7,12 +7,12 @@ bool operator==(particle_t p1, particle_t p2)   {   return p1.id == p2.id && p1.
 
 ostream& operator<<(ostream& o, const Bin& b)
 {
-    cout << "Content: " << endl << b.content << endl;
-    if(b.crossovers.size()) cout << "Crossovers: " << endl << b.crossovers << endl;
-    if(b.gz[static_cast<int>(GZR::left)].size())    cout << "left gz: " << endl << b.gz[static_cast<int>(GZR::left)] << endl;
-    if(b.gz[static_cast<int>(GZR::right)].size())   cout << "right gz: " << endl << b.gz[static_cast<int>(GZR::right)] << endl;
-    if(b.gz[static_cast<int>(GZR::top)].size())   cout << "top gz: " << endl << b.gz[static_cast<int>(GZR::top)] << endl;
-    if(b.gz[static_cast<int>(GZR::bottom)].size())   cout << "bottom gz: " << endl << b.gz[static_cast<int>(GZR::bottom)] << endl;
+    if(LogLevel(LL::content))   cout << "Content: " << endl << b.content << endl;
+    if(LogLevel(LL::crossover) && b.crossovers.size()) cout << "Crossovers: " << endl << b.crossovers << endl;
+    if(LogLevel(LL::gz) && b.gz[static_cast<int>(GZR::left)].size())    cout << "left gz: " << endl << b.gz[static_cast<int>(GZR::left)] << endl;
+    if(LogLevel(LL::gz) && b.gz[static_cast<int>(GZR::right)].size())   cout << "right gz: " << endl << b.gz[static_cast<int>(GZR::right)] << endl;
+    if(LogLevel(LL::gz) && b.gz[static_cast<int>(GZR::top)].size())   cout << "top gz: " << endl << b.gz[static_cast<int>(GZR::top)] << endl;
+    if(LogLevel(LL::gz) && b.gz[static_cast<int>(GZR::bottom)].size())   cout << "bottom gz: " << endl << b.gz[static_cast<int>(GZR::bottom)] << endl;
     return o;
 }
 
@@ -27,6 +27,7 @@ SerialRunTest::SerialRunTest(const Mesh &m)
         {
             srtWorld.insert_after(srtWorld.begin(), b.content.cbegin(), b.content.cend());
         });
+    srtWorld.sort();
 }
 
 void SerialRunTest::interact(ApplyForceFunct interact)

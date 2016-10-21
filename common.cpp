@@ -199,7 +199,6 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     double r2 = dx * dx + dy * dy;
     if( r2 > cutoff*cutoff )
         return;
-    
 	if (r2 != 0)
         {
 	   if (r2/(cutoff*cutoff) < *dmin * (*dmin))
@@ -214,7 +213,7 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     
 	
     //
-    //  very simple short-range repulsive force 
+    //  very simple short-range repulsive force
     //
     double coef = ( 1 - cutoff / r ) / r2 / mass;
     particle.ax += coef * dx;
@@ -225,7 +224,6 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
         cout << "Interaction\t " << particle << endl;
         cout << "\t\t " << neighbor << endl;
     }
-
 }
 
 //

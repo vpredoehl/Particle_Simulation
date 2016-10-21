@@ -19,6 +19,7 @@ ostream& operator<<(ostream&, particle_t);
 ostream& operator<<(ostream&, const Bin&);
 bool operator==(particle_t, particle_t);
 inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
+inline bool operator<(particle_t a, particle_t b)  {   return a.id < b.id; }
 
 template<class T>   short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
 template<class T>   ostream& operator<<(ostream& o, const vector<T> &v)    {   for_each(v.cbegin(), v.cend(), [&o](T p) {   o << p << endl; }); return o;   }
@@ -43,7 +44,7 @@ constexpr LogFlags operator|(LogFlags l1,  LogFlags l2)  {   return static_cast<
 constexpr LogFlags operator&(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) & static_cast<int>(l2)); }
 constexpr bool operator==(LogFlags l1, LogFlags l2) {   return true;    }
 
-constexpr LogFlags ll = LL::content | LL::gz | LL::interaction | LL::serialruntest | LL::bounce | LL::move;
+constexpr LogFlags ll = LL::content | LL::gz | LL::interaction | LL::serialruntest | LL::bounce;
 constexpr bool LogLevel(LogFlags f)  {   return static_cast<bool>(ll & f);    }
 
 

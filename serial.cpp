@@ -143,9 +143,10 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
         [&](Bin &b)
         {          
+            b.content.sort();
             auto particleIter = b.content.begin();
 
-            if(LogLevel(LL::content))    cout << "Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            if(LogLevel(LL::content))    cout << "Mesh Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
             
             while(particleIter != b.content.end())
             {
@@ -191,9 +192,10 @@ int main( int argc, char **argv )
             // has completed its update
         if(LogLevel(LL::serialruntest))
         {
+            if(LogLevel(LL::interaction))   cout << "srt: Compute Forces:" << endl;
             srt.interact(apply_force);
                 // and compare
-            if(srt != world)    cout << "srt apply_force diverged: step " << step << endl;
+            if(LogLevel(LL::interaction) && srt != world)    cout << "srt apply_force diverged: step " << step << endl;
         }
  
         //
@@ -202,13 +204,14 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(),  
             [&](Bin &b)
             {        
+                b.content.sort();
                 auto  particleIter = b.content.begin(), lastIter = particleIter;    // lastIter is for erase_after so current particle can be deleted
                 
                     // clear all ghost zone regions so they can be updated
                     // after particles move
                 for_each(b.gz.begin(), b.gz.end(), [](vector<particle_t> &c)    {   c.clear();  });
 
-                if(LogLevel(LL::content))    cout << "Move: Step " << step << ": bin id: " << b.id << endl << b << endl;
+                if(LogLevel(LL::content))    cout << "Mesh Move: Step " << step << ": bin id: " << b.id << endl << b << endl;
 
 
                     // iterate through particles in content container
@@ -320,8 +323,9 @@ int main( int argc, char **argv )
         {
             srt.move(::move);
                 // and compare
-            if(LogLevel(LL::content))
+            if(LogLevel(LL::content) && LogLevel(LL::move))
             {
+                cout << "srt Move: " << endl;
                 cout << "Mesh contents: " << world << endl;
                 cout << "srt move contents: " << endl << srt.srtWorld << endl;
             }
