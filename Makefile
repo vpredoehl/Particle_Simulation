@@ -16,14 +16,14 @@ all:	$(TARGETS)
 
 serial: serial.o common.o logging.o
 	$(CC) -o $@ $(LIBS) serial.o common.o logging.o
-autograder: autograder.o common.o
-	$(CC) -o $@ $(LIBS) autograder.o common.o
-pthreads: pthreads.o common.o
-	$(CC) -o $@ $(LIBS) -lpthread pthreads.o common.o
-openmp: openmp.o common.o
-	$(CC) -o $@ $(LIBS) $(OPENMP) openmp.o common.o
-mpi: mpi.o common.o
-	$(MPCC) -o $@ $(LIBS) $(MPILIBS) mpi.o common.o
+autograder: autograder.o common.o logging.o
+	$(CC) -o $@ $(LIBS) autograder.o common.o logging.o
+pthreads: pthreads.o common.o logging.o
+	$(CC) -o $@ $(LIBS) -lpthread pthreads.o common.o logging.o
+openmp: openmp.o common.o logging.o
+	$(CC) -o $@ $(LIBS) $(OPENMP) openmp.o common.o logging.o
+mpi: mpi.o common.o logging.o
+	$(MPCC) -o $@ $(LIBS) $(MPILIBS) mpi.o common.o logging.o
 
 logging.o:	logging.cpp logging.h common.h
 	$(CC) -c $(CFLAGS) logging.cpp
