@@ -11,6 +11,7 @@ send_recv
 *.btr
 *.md
 *_stock.*
+.DS_Store
 
 SerialPI
 

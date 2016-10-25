@@ -35,7 +35,7 @@ int main( int argc, char **argv )
         return 0;
     }
     
-	extern int numThreads;
+	extern unsigned long numThreads;
     extern short binsPerRow, binsPerCol;
     extern GhostZoneLayout gzLayout;
     extern BinList binGZ;
@@ -122,7 +122,7 @@ int main( int argc, char **argv )
         short numP = 0;
         
         for_each(world.begin(), world.end(),
-            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %i\n",s, b.crossovers.size()); numP += s;  });
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %li\n",s, b.crossovers.size()); numP += s;  });
 
         fprintf(fsum, "Initial total particles in bins: %i\n", numP);
     }
@@ -172,7 +172,7 @@ int main( int argc, char **argv )
             if(LogLevel(LL::content))   
 			{
 				cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;            
-            	for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
+            	for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); )
             	{
                 	auto v = *contentIter;
                 	if(find(++contentIter,b.content.cend(), v) != b.content.cend())
@@ -458,7 +458,7 @@ int main( int argc, char **argv )
         
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
-            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %i\n",s, b.crossovers.size()); numP += s;  });
+            [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %li\n",s, b.crossovers.size()); numP += s;  });
 
         for_each(world.begin(), world.end(),
             [](const Bin &b)

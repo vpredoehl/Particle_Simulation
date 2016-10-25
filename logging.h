@@ -25,8 +25,8 @@ inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
 inline bool operator<(particle_t a, particle_t b)  {   return a.id < b.id; }
 
 template<class T>   short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
-template<class T>   ostream& operator<<(ostream& o, const vector<T> &v)    {   for_each(v.cbegin(), v.cend(), [&o](T p) {   o << p << endl; }); return o;   }
-template<class T>   ostream& operator<<(ostream& o, const forward_list<T> &v)   {   for_each(v.cbegin(), v.cend(), [&o](T p)    {   o << p << endl; }); return o;   }
+template<class T>   ostream& operator<<(ostream& o, const vector<T> &v)    {   for_each(v.cbegin(), v.cend(), [&o](T p) {   o << p << std::endl; }); return o;   }
+template<class T>   ostream& operator<<(ostream& o, const forward_list<T> &v)   {   for_each(v.cbegin(), v.cend(), [&o](T p)    {   o << p << std::endl; }); return o;   }
 
 
 enum class LogFlags : short

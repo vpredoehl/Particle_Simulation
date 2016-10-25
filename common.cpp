@@ -17,7 +17,7 @@
 
 using namespace std;
 
-int numThreads;
+unsigned long numThreads;
 double size;
 short binsPerRow, binsPerCol;
 short particle_t::cnt = 0;
