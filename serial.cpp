@@ -154,13 +154,16 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
             [step](Bin &b)
         {
-            if(LogLevel(LL::content))   cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;            
-            for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
-            {
-                auto v = *contentIter;
-                if(find(++contentIter,b.content.cend(), v) != b.content.cend())
-                    cout << "Step: " << step << " unique content test failed: " << v << endl;
-            }
+            if(LogLevel(LL::content))   
+			{
+				cout << "Begin: Step " << step << ": bin id: " << b.id << endl << b << endl;            
+            	for(auto contentIter = b.content.cbegin(); contentIter != b.content.cend(); contentIter)
+            	{
+                	auto v = *contentIter;
+                	if(find(++contentIter,b.content.cend(), v) != b.content.cend())
+                    	cout << "Step: " << step << " unique content test failed: " << v << endl;
+            	}
+			}
 
             
             // 
