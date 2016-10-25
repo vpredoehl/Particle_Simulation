@@ -194,7 +194,7 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(), 
         [&](Bin &b)
         {          
-            b.content.sort();
+            if(LogLevel(LL::serialruntest))	b.content.sort();
             auto particleIter = b.content.begin();
 
             if(LogLevel(LL::content))    cout << "Mesh Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
@@ -258,7 +258,7 @@ int main( int argc, char **argv )
         for_each(world.begin(), world.end(),  
             [&](Bin &b)
             {        
-                b.content.sort();
+                if(LogLevel(LL::serialruntest))	b.content.sort();
                 auto  particleIter = b.content.begin(), lastIter = particleIter;    // lastIter is for erase_after so current particle can be deleted
                 
                     // clear all ghost zone regions so they can be updated
