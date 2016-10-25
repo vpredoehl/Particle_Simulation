@@ -43,10 +43,9 @@ enum class GhostZoneRegion : char
     topLeft, topRight, bottomLeft, bottomRight,
 };
 using GZR = GhostZoneRegion;    // shorthand qualifier
-template class vector<GhostZoneRegion>; // instantiation request
 
 using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
-using BinNeighbor = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
+using GhostZoneLayout = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
 
 using BinGhostZoneList = vector<vector<GhostZoneRegion>>;
 using BinList = map<short, BinGhostZoneList>;
@@ -62,6 +61,12 @@ struct Bin
     short binToLeft, binToRight, binToTop, binToBottom, binToUpperLeft, binToUpperRight, binToLowerLeft, binToLowerRight;   // adjacent bin indexes
     
     short id;
+
+		// methods to dynamically calculate ghost zone region contents in bin corners
+	vector<particle_t> topLeftGZ() const;
+	vector<particle_t> topRightGZ() const;
+	vector<particle_t> bottomLeftGZ() const;
+	vector<particle_t> bottomRightGZ() const;
 };
 
 using Mesh = vector<Bin>;

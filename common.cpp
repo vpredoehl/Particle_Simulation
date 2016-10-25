@@ -23,7 +23,7 @@ short binsPerRow, binsPerCol;
 short particle_t::cnt = 0;
 
 
-BinNeighbor neighborBin
+GhostZoneLayout gzLayout
   {
     { 2,        // ghost zones for two bins
                 // the following vector is enumerated in bin order
@@ -352,3 +352,61 @@ void init_particles( int n, particle_t *p )
     }
     free( shuffle );
 }
+
+
+vector<particle_t> Bin::topLeftGZ() const
+{
+	vector<particle_t> s;
+	const vector<particle_t> &topGZ = gz[static_cast<int>(GZR::top)], &leftGZ = gz[static_cast<int>(GZR::left)];
+
+	for_each(topGZ.cbegin(), topGZ.cend(), [&s, leftGZ](particle_t p1)	
+		{
+			auto findIter = find_if(leftGZ.cbegin(), leftGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
+
+			if(findIter != leftGZ.end()) s.push_back(p1);	// found particle in top left gz
+		});
+	return s;	// compiler move semantics by default
+}
+
+vector<particle_t> Bin::topRightGZ() const
+{
+	vector<particle_t> s;
+	const vector<particle_t> &topGZ = gz[static_cast<int>(GZR::top)], &rightGZ = gz[static_cast<int>(GZR::right)];
+
+	for_each(topGZ.cbegin(), topGZ.cend(), [&s, rightGZ](particle_t p1)	
+		{
+			auto findIter = find_if(rightGZ.cbegin(), rightGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
+
+			if(findIter != rightGZ.end()) s.push_back(p1);	// found particle in top left gz
+		});
+	return s;	// compiler move semantics by default
+}
+
+vector<particle_t> Bin::bottomLeftGZ() const
+{
+	vector<particle_t> s;
+	const vector<particle_t> &bottomGZ = gz[static_cast<int>(GZR::bottom)], &leftGZ = gz[static_cast<int>(GZR::left)];
+
+	for_each(bottomGZ.cbegin(), bottomGZ.cend(), [&s, leftGZ](particle_t p1)	
+		{
+			auto findIter = find_if(leftGZ.cbegin(), leftGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
+
+			if(findIter != leftGZ.end()) s.push_back(p1);	// found particle in top left gz
+		});
+	return s;	// compiler move semantics by default
+}
+
+vector<particle_t> Bin::bottomRightGZ() const
+{
+	vector<particle_t> s;
+	const vector<particle_t> &bottomGZ = gz[static_cast<int>(GZR::bottom)], &rightGZ = gz[static_cast<int>(GZR::right)];
+
+	for_each(bottomGZ.cbegin(), bottomGZ.cend(), [&s, rightGZ](particle_t p1)	
+		{
+			auto findIter = find_if(rightGZ.cbegin(), rightGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
+
+			if(findIter != rightGZ.end()) s.push_back(p1);	// found particle in top left gz
+		});
+	return s;	// compiler move semantics by default
+}
+

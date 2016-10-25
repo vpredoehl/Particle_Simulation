@@ -48,7 +48,7 @@ constexpr LogFlags operator|(LogFlags l1,  LogFlags l2)  {   return static_cast<
 constexpr LogFlags operator&(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) & static_cast<int>(l2)); }
 constexpr bool operator==(LogFlags l1, LogFlags l2) {   return true;    }
 
-constexpr LogFlags ll = LL::step;//LL::content | LL::crossover | LL::gz | LL::interaction | LL::serialruntest;
+constexpr LogFlags ll = LL::step | LL::serialruntest;//LL::content | LL::crossover | LL::gz | LL::interaction | LL::serialruntest;
 constexpr bool LogLevel(LogFlags f)  {   return static_cast<bool>(ll & f);    }
 
 

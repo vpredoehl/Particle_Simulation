@@ -37,7 +37,7 @@ int main( int argc, char **argv )
     
 	extern int numThreads;
     extern short binsPerRow, binsPerCol;
-    extern BinNeighbor neighborBin;
+    extern GhostZoneLayout gzLayout;
     extern BinList binGZ;
     extern vector<NeighborRegionList> nr;
     extern BinGhostZoneList bgz; 
@@ -57,7 +57,7 @@ int main( int argc, char **argv )
         default:
             binsPerRow = binsPerCol = 1;
     }
-    nr =  neighborBin[numThreads];
+    nr =  gzLayout[numThreads];
     bgz = binGZ[numThreads];
 
     char *savename = read_string( argc, argv, "-o", NULL );
@@ -68,6 +68,9 @@ int main( int argc, char **argv )
     
     Mesh world { numThreads, Bin{} };
 
+		//
+		// setup bin layout 
+		//
     switch(numThreads)  
     {
         case 2:
@@ -92,6 +95,18 @@ int main( int argc, char **argv )
 			world[0].binToRight = world[3].binToTop = 1;
 			world[0].binToBottom = world[3].binToLeft = 2;
 			world[1].binToBottom = world[2].binToRight = 3;
+
+            world[0].binToUpperLeft = world[0].binToUpperRight = world[0].binToLowerLeft = -1;
+            world[0].binToLowerRight = 3;
+
+            world[1].binToUpperLeft = world[1].binToUpperRight = world[1].binToLowerRight = -1;
+            world[1].binToLowerLeft = 2;
+
+            world[2].binToUpperLeft = world[2].binToLowerLeft = world[2].binToLowerRight = -1;
+            world[2].binToUpperRight = 1;
+
+            world[3].binToUpperRight = world[3].binToLowerLeft = world[3].binToLowerRight = -1;
+            world[3].binToUpperLeft = 0;
 			break;
     }    
 
@@ -236,8 +251,26 @@ int main( int argc, char **argv )
                         vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
                         for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
-                    //if((fabsf(p1.vx) > 2 || fabsf(p1.vy) > 2) && (fabsf(p1.ax) > 5 || fabsf(p1.ay) > 5))    
-//                    cout << "step: " << step << " " << p1 << endl;
+					if(b.binToUpperLeft != -1)
+					{
+						vector<particle_t> upperLeftGZ = b.topLeftGZ();
+                        for_each(upperLeftGZ.begin(), upperLeftGZ.end(), Interact);
+					}
+					if(b.binToUpperRight != -1)
+					{
+						vector<particle_t> upperRightGZ = b.topRightGZ();
+                        for_each(upperRightGZ.begin(), upperRightGZ.end(), Interact);
+					}
+					if(b.binToLowerLeft != -1)
+					{
+						vector<particle_t> lowerLeftGZ = b.bottomLeftGZ();
+                        for_each(lowerLeftGZ.begin(), lowerLeftGZ.end(), Interact);
+					}
+					if(b.binToLowerRight != -1)
+					{
+						vector<particle_t> lowerRightGZ = b.bottomRightGZ();
+                        for_each(lowerRightGZ.begin(), lowerRightGZ.end(), Interact);
+					}
 
                 particleIter++;                    
             }
@@ -300,7 +333,7 @@ int main( int argc, char **argv )
                         else 
                         {
                             particleIter = b.content.erase_after(lastIter); // IMPLEMENTATION BUG:  Doesn't return element after one erased.  Returns first element in list instead
-                            particleIter = std::next(lastIter);
+                            particleIter = std::next(lastIter);		// workaround
                         }
                     }
                     else
@@ -313,6 +346,8 @@ int main( int argc, char **argv )
                         
                             // check each enumerated ghost zone in the list ( gzl ) and add
                             // particle if it is in ghost zone
+							// particles in corner gz's, e.g. upper left will be 
+							// added to both top and left gz's, for example
                         for_each(b.gzl.cbegin(), b.gzl.cend(),
                             [&,inLeftGZ,inRightGZ, inTopGZ, inBottomGZ](GhostZoneRegion r)
                             {
