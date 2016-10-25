@@ -10,6 +10,7 @@ tutorials/*
 send_recv
 *.btr
 *.md
+*_stock.*
 
 SerialPI
 
