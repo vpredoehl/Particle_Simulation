@@ -3,7 +3,7 @@
 using namespace std;
 
 ostream& operator<<(ostream& o, particle_t t)   {   o << "id: " << t.id << " a: ( " << t.ax << ", " << t.ay << " )" << " v: ( " << t.vx << ", " << t.vy << " )" << " ( " << t.x << ", " << t.y << " )"; return o;  }
-bool operator==(particle_t p1, particle_t p2)   {   return p1.id == p2.id && p1.ax == p2.ax && p1.ay == p2.ay && p1.vx == p2.vx && p1.vy == p2.vy;  }
+bool operator==(particle_t p1, particle_t p2)   {   return p1.id == p2.id && p1.ax == p2.ax && p1.ay == p2.ay && p1.vx == p2.vx && p1.vy == p2.vy && p1.x == p2.x && p1.y == p2.y;  }
 
 ostream& operator<<(ostream& o, const Bin& b)
 {
