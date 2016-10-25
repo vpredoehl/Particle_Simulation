@@ -28,18 +28,22 @@ int main( int argc, char **argv )
         printf( "Options:\n" );
         printf( "-h to see this help\n" );
         printf( "-n <int> to set the number of particles\n" );
+        printf( "-th <int> to set the number of threads\n" );
         printf( "-o <filename> to specify the output file name\n" );
         printf( "-s <filename> to specify a summary file name\n" );
         printf( "-no turns off all correctness checks and particle output\n");
         return 0;
     }
     
-    int n = read_int( argc, argv, "-n", 1000 );
-    extern short binsPerRow, binsPerCol, numThreads;
+	extern int numThreads;
+    extern short binsPerRow, binsPerCol;
     extern BinNeighbor neighborBin;
     extern BinList binGZ;
     extern vector<NeighborRegionList> nr;
     extern BinGhostZoneList bgz; 
+
+    int n = read_int( argc, argv, "-n", 1000 );
+	numThreads = read_int(argc,argv,"-th",2);
 
         // determine mesh size
     switch(numThreads)
@@ -80,6 +84,15 @@ int main( int argc, char **argv )
                 = world[1].binToLowerLeft = world[1].binToLowerRight = -1;
             world[1].binToLeft = 0;
             break;
+		case 4:
+			world[0].binToLeft = world[0].binToTop = world[1].binToTop 
+				= world[1].binToRight = world[2].binToLeft = world[2].binToBottom
+				= world[3].binToBottom = world[3].binToRight = -1;
+			world[1].binToLeft = world[2].binToTop = 0;
+			world[0].binToRight = world[3].binToTop = 1;
+			world[0].binToBottom = world[3].binToLeft = 2;
+			world[1].binToBottom = world[2].binToRight = 3;
+			break;
     }    
 
     particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
