@@ -31,7 +31,7 @@
 			buildConfigurationList = 3F45B94F1DBFF74700B33340 /* Build configuration list for PBXLegacyTarget "particles" */;
 			buildPhases = (
 			);
-			buildToolPath = "/usr/bin/make serial";
+			buildToolPath = /usr/bin/make;
 			buildWorkingDirectory = "";
 			dependencies = (
 			);
