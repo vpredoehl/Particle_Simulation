@@ -461,16 +461,19 @@ int main( int argc, char **argv )
         fprintf(fsum,"%d %g\n",n,simulation_time);
         for_each(world.begin(), world.end(),
             [fsum, &numP](const Bin &b)    {    short s = list_size(b.content); fprintf(fsum,"Bin Size: %i  Crossovers: %li\n",s, b.crossovers.size()); numP += s;  });
-
-        for_each(world.begin(), world.end(),
-            [](const Bin &b)
-            {
-                for_each(b.content.begin(), b.content.end(),
-                    [](const particle_t &p) {   cout << "v:  ( " << p.vx << ", " << p.vy << " ) " << endl;  });
-            });
-            
+        
         fprintf(fsum, "Total particles in bins: %i\n", numP);
     }
+    
+    for_each(world.begin(), world.end(),
+             [](const Bin &b)
+             {
+                 for_each(b.content.begin(), b.content.end(),
+                          [](const particle_t &p) {   cout << "v:  ( " << p.vx << ", " << p.vy << " ) " << endl;  });
+             });
+    if(srt != particles)    cout << "stock code diverged"  << endl;    else    cout << "stock code matches!!" << endl;
+    if(srt != world)    cout << "srt diverged: step " << endl; else cout << "srt code matches!!" << endl;
+
     //
     // Clearing space
     //

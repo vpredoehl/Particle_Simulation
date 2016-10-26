@@ -10,16 +10,36 @@
 		3F45B9521DBFF9B000B33340 /* common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.cpp; sourceTree = "<group>"; };
 		3F45B9531DBFF9B000B33340 /* logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cpp; sourceTree = "<group>"; };
 		3F45B9541DBFF9B000B33340 /* serial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serial.cpp; sourceTree = "<group>"; };
+		3F625B6F1DC0398000FA752D /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		3F625B701DC0398000FA752D /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		3F45B9471DBFF74700B33340 = {
 			isa = PBXGroup;
 			children = (
+				3F625B711DC0398500FA752D /* Headers */,
+				3F625B721DC0398E00FA752D /* Source */,
+			);
+			sourceTree = "<group>";
+		};
+		3F625B711DC0398500FA752D /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				3F625B6F1DC0398000FA752D /* common.h */,
+				3F625B701DC0398000FA752D /* logging.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		3F625B721DC0398E00FA752D /* Source */ = {
+			isa = PBXGroup;
+			children = (
 				3F45B9521DBFF9B000B33340 /* common.cpp */,
 				3F45B9531DBFF9B000B33340 /* logging.cpp */,
 				3F45B9541DBFF9B000B33340 /* serial.cpp */,
 			);
+			name = Source;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

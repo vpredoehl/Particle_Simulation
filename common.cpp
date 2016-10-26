@@ -363,7 +363,7 @@ vector<particle_t> Bin::topLeftGZ() const
 		{
 			auto findIter = find_if(leftGZ.cbegin(), leftGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
 
-			if(findIter != leftGZ.end()) s.push_back(p1);	// found particle in top left gz
+			if(findIter != leftGZ.cend()) s.push_back(p1);	// found particle in top left gz
 		});
 	return s;	// compiler move semantics by default
 }
@@ -377,7 +377,7 @@ vector<particle_t> Bin::topRightGZ() const
 		{
 			auto findIter = find_if(rightGZ.cbegin(), rightGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
 
-			if(findIter != rightGZ.end()) s.push_back(p1);	// found particle in top left gz
+			if(findIter != rightGZ.cend()) s.push_back(p1);	// found particle in top left gz
 		});
 	return s;	// compiler move semantics by default
 }
@@ -391,7 +391,7 @@ vector<particle_t> Bin::bottomLeftGZ() const
 		{
 			auto findIter = find_if(leftGZ.cbegin(), leftGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
 
-			if(findIter != leftGZ.end()) s.push_back(p1);	// found particle in top left gz
+			if(findIter != leftGZ.cend()) s.push_back(p1);	// found particle in top left gz
 		});
 	return s;	// compiler move semantics by default
 }
@@ -405,7 +405,7 @@ vector<particle_t> Bin::bottomRightGZ() const
 		{
 			auto findIter = find_if(rightGZ.cbegin(), rightGZ.cend(), [p1](particle_t p2)	{	return p1.id == p2.id;	});
 
-			if(findIter != rightGZ.end()) s.push_back(p1);	// found particle in top left gz
+			if(findIter != rightGZ.cend()) s.push_back(p1);	// found particle in top left gz
 		});
 	return s;	// compiler move semantics by default
 }

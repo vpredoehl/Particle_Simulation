@@ -6,7 +6,7 @@
 CC = clang++
 MPCC = mpicxx
 OPENMP = -openmp
-CFLAGS = -g -std=c++11 -stdlib=libc++
+CFLAGS = -O3 -g -std=c++11 -stdlib=libc++
 LIBS = 
 
 
