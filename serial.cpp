@@ -351,7 +351,9 @@ int main( int argc, char **argv )
                         for_each(b.gzl.cbegin(), b.gzl.cend(),
                             [&,inLeftGZ,inRightGZ, inTopGZ, inBottomGZ](GhostZoneRegion r)
                             {
-                                auto gzIter = find_if(b.gz[static_cast<int>(r)].cbegin(), b.gz[static_cast<int>(r)].cend(),
+                                vector<particle_t>::const_iterator gzIter;
+                                
+                                if(LogLevel(LL::gz) && r < GZR::num_walls)    gzIter = find_if(b.gz[static_cast<int>(r)].cbegin(), b.gz[static_cast<int>(r)].cend(),
                                     [p](particle_t v) -> bool    {   return p.id == v.id;   });
                                
                                 switch(r)
@@ -359,7 +361,7 @@ int main( int argc, char **argv )
                                     case GZR::left:     
                                         if(inLeftGZ)    
                                         {
-                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  
+                                            if(LogLevel(LL::gz) && r < GZR::num_walls && gzIter != b.gz[static_cast<int>(r)].cend())
                                                 cout << "pushing duplicate gz L  " << p << endl;
                                             b.gz[static_cast<int>(r)].push_back(p);
                                         }
@@ -367,7 +369,7 @@ int main( int argc, char **argv )
                                     case GZR::right:    
                                         if(inRightGZ)
                                         {
-                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  
+                                            if(LogLevel(LL::gz) && r < GZR::num_walls && gzIter != b.gz[static_cast<int>(r)].cend())
                                                 cout << "pushing duplicate gz R  " << p << endl;
                                             b.gz[static_cast<int>(r)].push_back(p);
                                         }
@@ -375,14 +377,14 @@ int main( int argc, char **argv )
                                     case GZR::top:      
                                         if(inTopGZ)
                                         {
-                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz T  " << p << endl;
+                                            if(LogLevel(LL::gz) && r < GZR::num_walls && gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz T  " << p << endl;
                                             b.gz[static_cast<int>(r)].push_back(p);
                                         }
                                         break;                                    
                                     case GZR::bottom:   
                                         if(inBottomGZ)  
                                         {
-                                            if(gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz B  " << p << endl;
+                                            if(LogLevel(LL::gz) && r < GZR::num_walls && gzIter != b.gz[static_cast<int>(r)].cend())  cout << "pushing duplicate gz B  " << p << endl;
                                             b.gz[static_cast<int>(r)].push_back(p);
                                         }
                                         break;
