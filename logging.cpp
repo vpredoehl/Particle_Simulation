@@ -91,3 +91,28 @@ bool SerialRunTest::operator!=(const Mesh &w) const
     
     return fail;
 }
+
+bool operator!=(const Mesh &world, const particle_t *particles)
+{
+    vector<particle_t> w;
+    
+        // copy contents of Mesh world to w
+    for_each(world.cbegin(), world.cend(), [&w](const Bin &b)   {   copy(b.content.cbegin(), b.content.cend(), back_inserter(w));   });
+    sort(w.begin(), w.end());
+    
+    int i;
+    bool eq = true;
+    vector<particle_t>::const_iterator worldIter;
+    for(worldIter = w.cbegin(), i=0; worldIter != w.cend(); worldIter++, i++)
+    {
+        auto p1 = *worldIter;
+        auto p2 = particles[i];
+        
+        if(p1.id != p2.id)
+        {
+            cout << "world: " << p1 << endl << " != stock: " << p2 << endl;
+            eq = false;
+        }
+    }
+    return !eq;
+}

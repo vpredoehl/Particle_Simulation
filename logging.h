@@ -22,7 +22,7 @@ ostream& operator<<(ostream&, const Bin&);
     // comparators
 bool operator==(particle_t, particle_t);
 inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
-inline bool operator<(particle_t a, particle_t b)  {   return a.id < b.id; }
+inline bool operator<(particle_t a, particle_t b)  {   return a.id < b.id; }    // for sorting particles
 
 template<class T>   short list_size(const forward_list<T> &l)   {   short cnt = 0;  auto b = l.begin(); while(b != l.end())  {   b++;    cnt++;  }  return cnt; }
 template<class T>   ostream& operator<<(ostream& o, const vector<T> &v)    {   for_each(v.cbegin(), v.cend(), [&o](T p) {   o << p << std::endl; }); return o;   }
@@ -68,6 +68,7 @@ class SerialRunTest // container for serial run to compare against multi-bin run
         bool operator!=(const Mesh&)  const;
         bool operator!=(const particle_t*) const;
 };
+bool operator!=(const Mesh&, const particle_t*);
 
 
 #endif

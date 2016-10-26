@@ -471,8 +471,12 @@ int main( int argc, char **argv )
                  for_each(b.content.begin(), b.content.end(),
                           [](const particle_t &p) {   cout << "v:  ( " << p.vx << ", " << p.vy << " ) " << endl;  });
              });
-    if(srt != particles)    cout << "stock code diverged"  << endl;    else    cout << "stock code matches!!" << endl;
-    if(srt != world)    cout << "srt diverged: step " << endl; else cout << "srt code matches!!" << endl;
+    if(LogLevel(LL::serialruntest))
+    {
+        if(srt != particles)    cout << "stock code diverged"  << endl;    else    cout << "stock code matches!!" << endl;
+        if(srt != world)    cout << "srt diverged: step " << endl; else cout << "srt code matches!!" << endl;
+        if(world != particles)  cout << "Mesh diverged from stock code" << endl;    else    cout << "Mesh matches stock code!!" << endl;
+    }
 
     //
     // Clearing space
