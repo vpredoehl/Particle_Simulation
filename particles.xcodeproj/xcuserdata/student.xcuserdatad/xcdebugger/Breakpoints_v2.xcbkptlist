@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "serial.cpp"
-            timestampString = "499122795.874063"
+            timestampString = "499135053.420624"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
+            startingLineNumber = "297"
+            endingLineNumber = "297"
             landmarkName = "main( int argc, char **argv )"
             landmarkType = "9">
          </BreakpointContent>
