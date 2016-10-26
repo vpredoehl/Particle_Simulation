@@ -251,28 +251,28 @@ int main( int argc, char **argv )
                         vector<particle_t> &topGZ = world[b.binToBottom].gz[static_cast<int>(GZR::top)];
                         for_each(topGZ.begin(), topGZ.end(), Interact);
                     }
-					if(b.binToUpperLeft != -1)
-					{
-						vector<particle_t> upperLeftGZ = b.topLeftGZ();
-                        for_each(upperLeftGZ.begin(), upperLeftGZ.end(), Interact);
-					}
-					if(b.binToUpperRight != -1)
-					{
-						vector<particle_t> upperRightGZ = b.topRightGZ();
-                        for_each(upperRightGZ.begin(), upperRightGZ.end(), Interact);
-					}
-					if(b.binToLowerLeft != -1)
-					{
-						vector<particle_t> lowerLeftGZ = b.bottomLeftGZ();
-                        for_each(lowerLeftGZ.begin(), lowerLeftGZ.end(), Interact);
-					}
-					if(b.binToLowerRight != -1)
-					{
-						vector<particle_t> lowerRightGZ = b.bottomRightGZ();
+                    if(b.binToUpperLeft != -1)
+                    {
+                        vector<particle_t> lowerRightGZ = world[b.binToUpperLeft].bottomRightGZ();
                         for_each(lowerRightGZ.begin(), lowerRightGZ.end(), Interact);
-					}
+                    }
+                    if(b.binToUpperRight != -1)
+                    {
+                        vector<particle_t> lowerLeftGZ = world[b.binToUpperRight].bottomLeftGZ();
+                        for_each(lowerLeftGZ.begin(), lowerLeftGZ.end(), Interact);
+                    }
+                    if(b.binToLowerLeft != -1)
+                    {
+                        vector<particle_t> upperRightGZ = world[b.binToLowerLeft].topRightGZ();
+                        for_each(upperRightGZ.begin(), upperRightGZ.end(), Interact);
+                    }
+                    if(b.binToLowerRight != -1)
+                    {
+                        vector<particle_t> upperLeftGZ = world[b.binToLowerRight].topLeftGZ();
+                        for_each(upperLeftGZ.begin(), upperLeftGZ.end(), Interact);
+                    }
 
-                particleIter++;                    
+                particleIter++;
             }
         });
 			// BARRIER:  compute forces
