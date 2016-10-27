@@ -37,9 +37,9 @@ int main( int argc, char **argv )
     
 	extern unsigned long numThreads;
     extern short binsPerRow, binsPerCol;
-    extern GhostZoneLayout gzLayout;
-    extern GhostZoneListByThread binGZ;
-    extern vector<NeighborRegionList> nr;
+    extern NeighborGhostZone neighborGZLayout;
+    extern GhostZoneListByThread binGZList;
+    extern vector<NeighborRegionList> nrl;
     extern BinGhostZoneList bgz; 
 
     int n = read_int( argc, argv, "-n", 1000 );
@@ -57,8 +57,8 @@ int main( int argc, char **argv )
         default:
             binsPerRow = binsPerCol = 1;
     }
-    nr =  gzLayout[numThreads];
-    bgz = binGZ[numThreads];
+    nrl =  neighborGZLayout[numThreads];
+    bgz = binGZList[numThreads];
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );

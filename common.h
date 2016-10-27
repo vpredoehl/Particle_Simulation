@@ -45,7 +45,7 @@ enum class GhostZoneRegion : char
 using GZR = GhostZoneRegion;    // shorthand qualifier
 
 using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZoneRegion>>;    // visible neighbor regions for current bin
-using GhostZoneLayout = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
+using NeighborGhostZone = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins
 
 using BinGhostZoneList = vector<vector<GhostZoneRegion>>;
 using GhostZoneListByThread = map<short /* numThreads */, BinGhostZoneList>;

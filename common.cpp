@@ -23,7 +23,7 @@ short binsPerRow, binsPerCol;
 short particle_t::cnt = 0;
 
 
-GhostZoneLayout gzLayout
+NeighborGhostZone neighborGZLayout
   {
     { 2,        // ghost zones for two bins
                 // the following vector is enumerated in bin order
@@ -55,14 +55,35 @@ GhostZoneLayout gzLayout
     }
   };
 
-GhostZoneListByThread binGZ   // enumerates each bin's ghost zone regions
+GhostZoneListByThread binGZList   // enumerates each bin's ghost zone regions
     {
+            //      layout for two bins
+            //  _________________________
+            //  |           |           |
+            //  |           |           |
+            //  |     0     |     1     |
+            //  |           |           |
+            //  |___________|___________|
+        
         { 2,    // two threads
             {
                 {GZR::right}, // bin 0
                 {GZR::left} // bin 1
             }
         },
+            //      layout for four bins
+            //  _________________________
+            //  |           |           |
+            //  |           |           |
+            //  |     0     |     1     |
+            //  |           |           |
+            //  |___________|___________|
+            //  |           |           |
+            //  |           |           |
+            //  |     2     |     3     |
+            //  |           |           |
+            //  |___________|___________|
+
         { 4,    // four threads
             {
                     // ghost zone regions by bin
@@ -71,12 +92,38 @@ GhostZoneListByThread binGZ   // enumerates each bin's ghost zone regions
                 {GZR::right, GZR::top, GZR::topRight},     // bin 2
                 {GZR::left, GZR::top, GZR::topLeft}       // bin 3
             }
+        },
+            //      layout for eight bins
+            //  _________________________________________________
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     0     |     1     |     2     |     3     |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     4     |     5     |     6     |     7     |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+        
+        { 8,    // eight threads
+            {
+                    // ghost zone regions by bin
+                {GZR::right, GZR::bottom, GZR::bottomRight},                                // bin 0
+                {GZR::left, GZR::bottomLeft, GZR::bottom, GZR::bottomRight, GZR::right},    // bin 1
+                {GZR::left, GZR::bottomLeft, GZR::bottom, GZR::bottomRight, GZR::right},    // bin 2
+                {GZR::left, GZR::bottom, GZR::bottomLeft},                                  // bin 3
+                {GZR::right, GZR::top, GZR::topRight},                                      // bin 4
+                {GZR::left, GZR::topLeft, GZR::top, GZR::topRight, GZR::right},             // bin 5
+                {GZR::left, GZR::topLeft, GZR::top, GZR::topRight, GZR::right},             // bin 6
+                {GZR::left, GZR::top, GZR::topLeft}                                         // bin 7
+            }
         }
     };
     
 
 // specific enumeration for current number of threads
-vector<NeighborRegionList> nr;
+vector<NeighborRegionList> nrl;
 BinGhostZoneList bgz; 
 
 //
@@ -147,7 +194,7 @@ void init_particles( int n, Mesh &p, particle_t *particles)
         float bottomWall = dropBin.bottomWall = (y+1) * size/binsPerCol;
         
             // ghost zone placement
-        for_each(nr.begin(), nr.end(), [=, &dropBin](const NeighborRegionList &neighbors)
+        for_each(nrl.begin(), nrl.end(), [=, &dropBin](const NeighborRegionList &neighbors)
             {
                     // ghoxt zone regions are optimized to find gz's for neighboring bin
                     // so we have to sequentially search the neighboring bins for gz's
