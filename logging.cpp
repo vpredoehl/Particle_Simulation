@@ -36,7 +36,7 @@ SerialRunTest::SerialRunTest(const Mesh &m)
         // combine contents of each bin into SerialRunTest::world
     for_each(next(m.cbegin()), m.cend(), [this](const Bin &b)
         {
-            srtWorld.insert_after(srtWorld.begin(), b.content.cbegin(), b.content.cend());
+            copy(b.content.cbegin(), b.content.cend(), front_inserter(srtWorld));
         });
     srtWorld.sort();
 }
@@ -111,13 +111,12 @@ bool operator!=(const Mesh &world, const particle_t *particles)
     for_each(world.cbegin(), world.cend(), [&w](const Bin &b)   {   copy(b.content.cbegin(), b.content.cend(), back_inserter(w));   });
     sort(w.begin(), w.end());
     
-    int i;
     bool eq = true;
     vector<particle_t>::const_iterator worldIter;
-    for(worldIter = w.cbegin(), i=0; worldIter != w.cend(); worldIter++, i++)
+    for(worldIter = w.cbegin(); worldIter != w.cend(); worldIter++)
     {
         auto p1 = *worldIter;
-        auto p2 = particles[i];
+        auto p2 = particles[p1.id];
         
         if(p1.id != p2.id)
         {

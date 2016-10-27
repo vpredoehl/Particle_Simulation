@@ -58,10 +58,10 @@ int main( int argc, char **argv )
             binsPerRow = binsPerCol = 1;
     }
     bgz = binGZList[numThreads];
-    nrl =  neighborGZLayout[numThreads];
+        //    nrl =  neighborGZLayout[numThreads];
     
         // sort nrl ( neighbor region list )  if we are logging it
-    if(LogLevel(LL::neighborgzlist))    for_each(nrl.begin(), nrl.end(), [](NeighborRegionList &l)  {   sort(l.begin(), l.end());   });
+        //    if(LogLevel(LL::neighborgzlist))    for_each(nrl.begin(), nrl.end(), [](NeighborRegionList &l)  {   sort(l.begin(), l.end());   });
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
@@ -69,7 +69,12 @@ int main( int argc, char **argv )
     FILE *fsave = savename ? fopen( savename, "w" ) : NULL;
     FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
     
-    Mesh world { numThreads, Bin{} };
+    Mesh world { numThreads };
+    
+    int i;
+    Mesh::iterator worldIter;
+        // set bin id's
+    for(worldIter = world.begin(), i=0; worldIter != world.end(); worldIter++, i++)     worldIter->id = i;
 
 		//
 		// setup bin layout 
@@ -207,10 +212,8 @@ int main( int argc, char **argv )
     set_size( n );
     init_particles( n, world, particles );
 
-    cout << nrl << endl;
-    cout << "NeighborGZListFromBinGZList" << endl << NeighborGZListFromBinGZList(world) << endl;
-    if(LogLevel(LL::neighborgzlist))
-        if(nrl != NeighborGZListFromBinGZList(world))   cout << "nrl failed" << endl;   else cout << "nrl matches!!" << endl;
+    nrl = NeighborGZListFromBinGZList(world);  // depends on bin id which is initialized in init_particles ( above )
+    if(LogLevel(LL::neighborgzlist))        cout << nrl << endl;
 
 
         // run serial test side by side to compare results with multi-bin run
@@ -294,7 +297,8 @@ int main( int argc, char **argv )
                 else if(p.y > b.bottomWall - cutoff) b.gz[static_cast<int>(GZR::bottom)].push_back(p);
           
                     // then add new particle to this bin's content list
-                b.content.push_front(p);    
+                b.content.push_front(p);
+                if(LogLevel(LL::crossover)) cout << "Absorbing Crossover: Step " << step << "  " << p << endl;
             });
             if(LogLevel(LL::crossover))   cout << "Step: " << step << "  Crossovers: " << b.crossovers.size() << "  BinSize: " << list_size(b.content) << endl;
             b.crossovers.clear();   // erase contents of crossover list so they won't be absorbed again
@@ -314,7 +318,8 @@ int main( int argc, char **argv )
             if(LogLevel(LL::serialruntest))	b.content.sort();
             auto particleIter = b.content.begin();
 
-            if(LogLevel(LL::content))    cout << "Mesh Compute Forces: Step " << step << ": bin id: " << b.id << endl << b << endl;
+            cout << "Mesh Compute Forces: Step " << step << endl;
+            if(LogLevel(LL::content))    cout << ": bin id: " << b.id << endl << b << endl;
             
             while(particleIter != b.content.end())
             {
@@ -380,7 +385,7 @@ int main( int argc, char **argv )
             // has completed its update
         if(LogLevel(LL::serialruntest))
         {
-            if(LogLevel(LL::interaction))   cout << "srt: Compute Forces:" << endl;
+            if(LogLevel(LL::interaction))   cout << "srt: Compute Forces: Step " << step << endl;
             srt.interact(apply_force);
                 // and compare
             if(LogLevel(LL::interaction) && srt != world)    cout << "srt apply_force diverged: step " << step << endl;
@@ -415,9 +420,21 @@ int main( int argc, char **argv )
                     bool jumpBottom = p.y > b.bottomWall;
             
                         // add the particle to the neighboring bin if there  is a crossover
-                    if(jumpLeft)        world[ jumpTop ? b.binToUpperLeft : jumpBottom ? b.binToLowerLeft : b.binToLeft ].crossovers.push_back(p);
-                    else if(jumpRight)  world[ jumpTop ? b.binToUpperRight : jumpBottom ? b.binToLowerRight : b.binToRight ].crossovers.push_back(p);
-                    if(jumpTop)    world[ b.binToTop ].crossovers.push_back(p);
+                    if(jumpLeft)
+                    {
+                        if(jumpTop && b.binToUpperLeft != -1)           world[b.binToUpperLeft].crossovers.push_back(p);
+                        else if(jumpBottom && b.binToLowerLeft != -1)   world[b.binToLowerLeft].crossovers.push_back(p);
+                        else if(b.binToLeft != -1) world[b.binToLeft].crossovers.push_back(p);
+                            // world[ jumpTop ? b.binToUpperLeft : jumpBottom ? b.binToLowerLeft : b.binToLeft ].crossovers.push_back(p);
+                    }
+                    else if(jumpRight)
+                    {
+                        if(jumpTop && b.binToUpperRight != -1)  world[b.binToUpperRight].crossovers.push_back(p);
+                        else if(jumpBottom && b.binToLowerRight != -1)   world[b.binToLowerRight].crossovers.push_back(p);
+                        else if(b.binToRight != -1) world[b.binToRight].crossovers.push_back(p);
+                            // world[ jumpTop ? b.binToUpperRight : jumpBottom ? b.binToLowerRight : b.binToRight ].crossovers.push_back(p);
+                    }
+                    else if(jumpTop)    world[ b.binToTop ].crossovers.push_back(p);
                     else if(jumpBottom) world[ b.binToBottom ].crossovers.push_back(p);     
             
                     if(jumpLeft || jumpRight || jumpTop || jumpBottom)

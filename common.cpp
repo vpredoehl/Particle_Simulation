@@ -277,7 +277,6 @@ void init_particles( int n, Mesh &p, particle_t *particles)
             
 
         dropBin.gzl = bgz[whichBin];    // set ghost region list for bin
-        dropBin.id = whichBin;
     
         //
         //  assign random velocities within a bound
@@ -327,7 +326,7 @@ void apply_force( particle_t &particle, const particle_t &neighbor , double *dmi
     if(LogLevel(LL::interaction) && particle.id != neighbor.id)
     {
         cout << "Interaction\t " << particle << endl;
-        cout << "\t\t " << neighbor << endl;
+        cout << "\t\t\t" << neighbor << endl;
     }
 }
 
