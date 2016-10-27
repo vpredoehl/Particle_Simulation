@@ -71,6 +71,7 @@ struct Bin
 
 using Mesh = vector<Bin>;
 
+vector<NeighborRegionList> NeighborGZListFromBinGZList(const Mesh&);
 
 //
 //  timing routines

@@ -126,6 +126,64 @@ GhostZoneListByThread binGZList   // enumerates each bin's ghost zone regions
 vector<NeighborRegionList> nrl;
 BinGhostZoneList bgz; 
 
+
+vector<NeighborRegionList> NeighborGZListFromBinGZList(const Mesh &world)
+{
+    vector<NeighborRegionList> nrl { numThreads };
+
+    for_each(world.cbegin(), world.cend(), [&nrl](const Bin &b)
+        {
+            if(b.binToLeft != -1)
+            {
+                vector<GhostZoneRegion> l = bgz[b.binToLeft];
+                
+                    // check if bin to left has right gz
+                if(l.cend() != find(l.cbegin(), l.cend(), GZR::right))
+                        // and add it to this bin's neighbor gz list if it does
+                   nrl[b.id].push_back({b.binToLeft, GZR::right});
+            }
+            if(b.binToUpperLeft != -1)
+            {
+                vector<GhostZoneRegion> ul = bgz[b.binToUpperLeft];
+                if(ul.cend() != find(ul.cbegin(), ul.cend(), GZR::bottomRight))     nrl[b.id].push_back({b.binToUpperLeft, GZR::bottomRight});
+            }
+            if(b.binToTop != -1)
+            {
+                vector<GhostZoneRegion> t = bgz[b.binToTop];
+                if(t.cend() != find(t.cbegin(), t.cend(), GZR::bottom))        nrl[b.id].push_back({b.binToTop, GZR::bottom});
+            }
+            if(b.binToUpperRight != -1)
+            {
+                vector<GhostZoneRegion> ur = bgz[b.binToUpperRight];
+                if(ur.cend() != find(ur.cbegin(), ur.cend(), GZR::bottomLeft))      nrl[b.id].push_back({b.binToUpperRight, GZR::bottomLeft});
+            }
+            if(b.binToRight != -1)
+            {
+                vector<GhostZoneRegion> r = bgz[b.binToRight];
+                if(r.cend() != find(r.cbegin(), r.cend(), GZR::left))   nrl[b.id].push_back({b.binToRight, GZR::left});
+            }
+            if(b.binToLowerRight != -1)
+            {
+                vector<GhostZoneRegion> lr = bgz[b.binToLowerRight];
+                if(lr.cend() != find(lr.cbegin(), lr.cend(), GZR::topLeft))    nrl[b.id].push_back({b.binToLowerRight, GZR::topLeft});
+            }
+            if(b.binToBottom != -1)
+            {
+                vector<GhostZoneRegion> bot = bgz[b.binToBottom];
+                if(bot.cend() != find(bot.cbegin(), bot.cend(), GZR::top))    nrl[b.id].push_back({b.binToBottom, GZR::top});
+            }
+            if(b.binToLowerLeft != -1)
+            {
+                vector<GhostZoneRegion> ll = bgz[b.binToLowerLeft];
+                if(ll.cend() != find(ll.cbegin(), ll.cend(), GZR::topRight))    nrl[b.id].push_back({b.binToLowerLeft, GZR::topRight});
+            }
+        });
+    
+        // sort neighbor region list if we are logging it
+    if(LogLevel(LL::neighborgzlist))    for_each(nrl.begin(), nrl.end(), [](NeighborRegionList &l)  {   sort(l.begin(), l.end());   });
+    return nrl;
+}
+
 //
 //  timer
 //

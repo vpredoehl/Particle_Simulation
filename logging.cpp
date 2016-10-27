@@ -16,6 +16,17 @@ ostream& operator<<(ostream& o, const Bin& b)
     return o;
 }
 
+ostream& operator<<(ostream& o, const vector<NeighborRegionList>& nrl)
+{
+    short id = 0;   // bin id is the position in the container
+    
+    for_each(nrl.cbegin(), nrl.cend(), [&o,&id](NeighborRegionList l)
+             {
+                 o << "bin id: " << id++ << endl << l << endl;
+             });
+    return o;
+}
+
 
 // SerialRunTest
 

@@ -57,8 +57,11 @@ int main( int argc, char **argv )
         default:
             binsPerRow = binsPerCol = 1;
     }
-    nrl =  neighborGZLayout[numThreads];
     bgz = binGZList[numThreads];
+    nrl =  neighborGZLayout[numThreads];
+    
+        // sort nrl ( neighbor region list )  if we are logging it
+    if(LogLevel(LL::neighborgzlist))    for_each(nrl.begin(), nrl.end(), [](NeighborRegionList &l)  {   sort(l.begin(), l.end());   });
 
     char *savename = read_string( argc, argv, "-o", NULL );
     char *sumname = read_string( argc, argv, "-s", NULL );
@@ -73,6 +76,14 @@ int main( int argc, char **argv )
 		//
     switch(numThreads)  
     {
+                //      layout for two bins
+                //  _________________________
+                //  |           |           |
+                //  |           |           |
+                //  |     0     |     1     |
+                //  |           |           |
+                //  |___________|___________|
+
         case 2:
                 // if there is no adjacent bin ( i.e. because it's a wall,
                 // set to -1 so there is no attempt to set a ghost zone
@@ -87,7 +98,21 @@ int main( int argc, char **argv )
                 = world[1].binToLowerLeft = world[1].binToLowerRight = -1;
             world[1].binToLeft = 0;
             break;
-		case 4:
+
+                //      layout for four bins
+                //  _________________________
+                //  |           |           |
+                //  |           |           |
+                //  |     0     |     1     |
+                //  |           |           |
+                //  |___________|___________|
+                //  |           |           |
+                //  |           |           |
+                //  |     2     |     3     |
+                //  |           |           |
+                //  |___________|___________|
+
+        case 4:
 			world[0].binToLeft = world[0].binToTop = world[1].binToTop 
 				= world[1].binToRight = world[2].binToLeft = world[2].binToBottom
 				= world[3].binToBottom = world[3].binToRight = -1;
@@ -108,11 +133,85 @@ int main( int argc, char **argv )
             world[3].binToUpperRight = world[3].binToLowerLeft = world[3].binToLowerRight = -1;
             world[3].binToUpperLeft = 0;
 			break;
-    }    
+            
+                //      layout for eight bins
+                //  _________________________________________________
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     0     |     1     |     2     |     3     |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     4     |     5     |     6     |     7     |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+        case 8:
+                // set perimeter walls
+            world[0].binToLeft = world[0].binToTop = world[1].binToTop = world[2].binToTop
+                = world[3].binToTop = world[3].binToRight = world[4].binToLeft
+                = world[4].binToBottom = world[5].binToBottom = world[6].binToBottom
+                = world[7].binToBottom = world[7].binToRight = -1;
+            
+            world[0].binToUpperLeft = world[0].binToUpperRight = world[0].binToLowerLeft = -1;
+            world[0].binToRight = 1;
+            world[0].binToBottom = 4;
+            world[0].binToLowerRight = 5;
+            
+            world[1].binToUpperLeft = world[1].binToUpperRight = -1;
+            world[1].binToLeft = 0;
+            world[1].binToRight = 2;
+            world[1].binToLowerLeft = 4;
+            world[1].binToBottom = 5;
+            world[1].binToLowerRight = 6;
+            
+            world[2].binToUpperLeft = world[2].binToUpperRight = -1;
+            world[2].binToLeft = 1;
+            world[2].binToRight = 3;
+            world[2].binToLowerLeft = 5;
+            world[2].binToBottom = 6;
+            world[2].binToLowerRight = 7;
+            
+            world[3].binToUpperLeft = world[3].binToUpperRight = world[3].binToLowerRight -1;
+            world[3].binToLeft = 2;
+            world[3].binToLowerLeft = 6;
+            world[3].binToBottom = 7;
+            
+            world[4].binToUpperLeft = world[4].binToLowerLeft = world[4].binToLowerRight = -1;
+            world[4].binToTop = 0;
+            world[4].binToUpperRight = 1;
+            world[4].binToRight = 5;
+            
+            world[5].binToLowerLeft = world[5].binToLowerRight = -1;
+            world[5].binToLeft = 4;
+            world[5].binToUpperLeft = 0;
+            world[5].binToTop = 1;
+            world[5].binToUpperRight = 2;
+            world[5].binToRight = 6;
+            
+            world[6].binToLowerLeft = world[6].binToLowerRight = -1;
+            world[6].binToLeft = 5;
+            world[6].binToUpperLeft = 1;
+            world[6].binToTop = 2;
+            world[6].binToUpperRight = 3;
+            world[6].binToRight = 7;
+            
+            world[7].binToUpperRight = world[7].binToLowerLeft = world[7].binToLowerRight = -1;
+            world[7].binToLeft = 6;
+            world[7].binToUpperLeft = 2;
+            world[7].binToTop = 3;
+            break;
+    }
 
     particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
     set_size( n );
     init_particles( n, world, particles );
+
+    cout << nrl << endl;
+    cout << "NeighborGZListFromBinGZList" << endl << NeighborGZListFromBinGZList(world) << endl;
+    if(LogLevel(LL::neighborgzlist))
+        if(nrl != NeighborGZListFromBinGZList(world))   cout << "nrl failed" << endl;   else cout << "nrl matches!!" << endl;
+
 
         // run serial test side by side to compare results with multi-bin run
     SerialRunTest srt{world};

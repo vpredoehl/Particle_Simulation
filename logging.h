@@ -16,9 +16,25 @@ using std::map;
 using std::function;
 
     // stream
+inline ostream& operator<<(ostream& o,GhostZoneRegion r)
+{
+    switch(r)
+    {
+        case GZR::top: cout << "top"; break;
+        case GZR::left: cout << "left"; break;
+        case GZR::bottom: cout << "bottom"; break;
+        case GZR::right: cout << "right"; break;
+        case GZR::topLeft: cout << "topLeft"; break;
+        case GZR::topRight: cout << "topRight"; break;
+        case GZR::bottomLeft: cout << "bottomLeft"; break;
+        case GZR::bottomRight: cout << "bottomRight"; break;
+    }
+    return o;
+}
 ostream& operator<<(ostream&, particle_t);
 ostream& operator<<(ostream&, const Bin&);
-
+ostream& operator<<(ostream&, const vector<NeighborRegionList>&);   // neighbor gz list for each bin
+inline ostream& operator<<(ostream& o, std::pair<short, GhostZoneRegion> p) {   cout << "{ " << p.first << ", " << p.second << " }";  return o;   }
     // comparators
 bool operator==(particle_t, particle_t);
 inline bool operator!=(particle_t a, particle_t b)  {   return !(a == b);   }
@@ -40,7 +56,8 @@ enum class LogFlags : short
     bounce = 32,
     serialruntest = 64,
     move = 128,
-    step = 256
+    step = 256,
+    neighborgzlist = 512,
 };
 using LL = LogFlags;    // shorthand alias 
 
@@ -48,7 +65,7 @@ constexpr LogFlags operator|(LogFlags l1,  LogFlags l2)  {   return static_cast<
 constexpr LogFlags operator&(LogFlags l1,  LogFlags l2)  {   return static_cast<LogFlags>(static_cast<int>(l1) & static_cast<int>(l2)); }
 constexpr bool operator==(LogFlags l1, LogFlags l2) {   return true;    }
 
-constexpr LogFlags ll = LL::step | LL::serialruntest;//LL::content | LL::crossover | LL::gz | LL::interaction | LL::serialruntest;
+constexpr LogFlags ll = LL::step | LL::serialruntest | LL::neighborgzlist;//LL::content | LL::crossover | LL::gz | LL::interaction | LL::serialruntest;
 constexpr bool LogLevel(LogFlags f)  {   return static_cast<bool>(ll & f);    }
 
 
