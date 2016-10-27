@@ -55,7 +55,7 @@ GhostZoneLayout gzLayout
     }
   };
 
-BinList binGZ   // enumerates each bin's ghost zone regions
+GhostZoneListByThread binGZ   // enumerates each bin's ghost zone regions
     {
         { 2,    // two threads
             {

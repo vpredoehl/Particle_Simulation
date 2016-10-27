@@ -48,7 +48,7 @@ using NeighborRegionList = vector<std::pair<short /* the neighbor bin */, GhostZ
 using GhostZoneLayout = map<short, vector<NeighborRegionList>>;    // neighbor regions by number of bins    
 
 using BinGhostZoneList = vector<vector<GhostZoneRegion>>;
-using BinList = map<short, BinGhostZoneList>;
+using GhostZoneListByThread = map<short /* numThreads */, BinGhostZoneList>;
 
 struct Bin
 {
