@@ -86,6 +86,50 @@ GhostZoneListByThread binGZList   // enumerates each bin's ghost zone regions
                 {GZR::left, GZR::topLeft, GZR::top, GZR::topRight, GZR::right},             // bin 6
                 {GZR::left, GZR::top, GZR::topLeft}                                         // bin 7
             }
+        },
+        
+            //      layout for sixteen bins
+            //  _________________________________________________
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     0     |     1     |     2     |     3     |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     4     |     5     |     6     |     7     |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     8     |     9     |     10    |     11    |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+            //  |           |           |           |           |
+            //  |           |           |           |           |
+            //  |     12    |     13    |     14    |     15    |
+            //  |           |           |           |           |
+            //  |___________|___________|___________|___________|
+
+        { 16,   // sixteen threads
+            {
+                {GZR::right, GZR::bottom, GZR::bottomRight},                                // bin 0
+                {GZR::left, GZR::bottomLeft, GZR::bottom, GZR::bottomRight, GZR::right},    // bin 1
+                {GZR::left, GZR::bottomLeft, GZR::bottom, GZR::bottomRight, GZR::right},    // bin 2
+                {GZR::left, GZR::bottom, GZR::bottomLeft},                                  // bin 3
+                {GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom},       // bin 4
+                {GZR::topLeft, GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom, GZR::bottomLeft, GZR::left},     // bin 5
+                {GZR::topLeft, GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom, GZR::bottomLeft, GZR::left},     // bin 6
+                {GZR::bottom, GZR::bottomLeft, GZR::left, GZR::topLeft, GZR::top},          // bin 7
+                {GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom},       // bin 8
+                {GZR::topLeft, GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom, GZR::bottomLeft, GZR::left},     // bin 9
+                {GZR::topLeft, GZR::top, GZR::topRight, GZR::right, GZR::bottomRight, GZR::bottom, GZR::bottomLeft, GZR::left},     // bin 10
+                {GZR::bottom, GZR::bottomLeft, GZR::left, GZR::topLeft, GZR::top},          // bin 11
+                {GZR::right, GZR::top, GZR::topRight},                                      // bin 12
+                {GZR::left, GZR::topLeft, GZR::top, GZR::topRight, GZR::right},             // bin 13
+                {GZR::left, GZR::topLeft, GZR::top, GZR::topRight, GZR::right},             // bin 14
+                {GZR::left, GZR::top, GZR::topLeft}                                         // bin 15
+            }
         }
     };
     

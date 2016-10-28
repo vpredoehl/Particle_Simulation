@@ -205,6 +205,106 @@ int main( int argc, char **argv )
             world[7].binToUpperLeft = 2;
             world[7].binToTop = 3;
             break;
+
+                //      layout for sixteen bins
+                //  _________________________________________________
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     0     |     1     |     2     |     3     |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     4     |     5     |     6     |     7     |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     8     |     9     |     10    |     11    |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+                //  |           |           |           |           |
+                //  |           |           |           |           |
+                //  |     12    |     13    |     14    |     15    |
+                //  |           |           |           |           |
+                //  |___________|___________|___________|___________|
+	case 16:
+            world[0].binToLeft = world[0].binToTop = world[1].binToTop = world[2].binToTop
+                = world[3].binToTop = world[3].binToRight = world[4].binToLeft 
+		= world[7].binToRight = world[8].binToLeft = world[11].binToRight 
+                = world[12].binToLeft = world[12].binToBottom = world[13].binToBottom 
+		= world[14].binToBottom = world[15].binToBottom = world[15].binToRight = -1;
+
+            world[0].binToUpperLeft = world[0].binToUpperRight = world[0].binToLowerLeft = -1;
+            world[0].binToRight = 1;
+            world[0].binToBottom = 4;
+            world[0].binToLowerRight = 5;
+            
+            world[1].binToUpperLeft                                       = world[1].binToUpperRight = -1;
+            world[1].binToLeft = 0;                                         world[1].binToRight = 2;
+            world[1].binToLowerLeft = 4;        world[1].binToBottom = 5;   world[1].binToLowerRight = 6;
+            
+            world[2].binToUpperLeft                                       = world[2].binToUpperRight = -1;
+            world[2].binToLeft = 1;                                         world[2].binToRight = 3;
+            world[2].binToLowerLeft = 5;        world[2].binToBottom = 6;   world[2].binToLowerRight = 7;
+            
+            world[3].binToUpperLeft = world[3].binToUpperRight = world[3].binToLowerRight -1;
+            world[3].binToLeft = 2;
+            world[3].binToLowerLeft = 6;        world[3].binToBottom = 7;
+
+            world[4].binToUpperLeft = world[4].binToLowerLeft = -1;
+            world[4].binToTop = 0;          world[4].binToUpperRight = 1;
+                                            world[4].binToRight = 5;
+            world[4].binToBottom = 8;       world[4].binToLowerRight = 9;
+
+
+            world[5].binToUpperLeft = 0;    world[5].binToTop = 1;          world[5].binToUpperRight = 2;
+            world[5].binToLeft = 4;                                         world[5].binToRight = 6;
+            world[5].binToLowerLeft = 8;    world[5].binToBottom = 9;       world[5].binToLowerRight = 10;
+
+            world[6].binToUpperLeft = 1;    world[6].binToTop = 2;          world[6].binToUpperRight = 3;
+            world[6].binToLeft = 5;                                         world[6].binToRight = 7;
+            world[6].binToLowerLeft = 9;    world[6].binToBottom = 10;      world[6].binToLowerRight = 11;
+
+            world[7].binToUpperRight = world[7].binToLowerRight = -1;
+            world[7].binToUpperLeft = 2;    world[7].binToTop = 3;
+            world[7].binToLeft = 6;
+            world[7].binToLowerLeft = 10;   world[7].binToBottom = 11;
+
+            world[8].binToLowerLeft = world[8].binToUpperLeft = -1;
+                                            world[8].binToTop = 4;          world[8].binToUpperRight = 5;
+                                                                            world[8].binToRight = 9;
+                                            world[8].binToBottom = 12;      world[8].binToLowerRight = 13;
+
+            world[9].binToUpperLeft = 4;    world[9].binToTop = 5;          world[9].binToUpperRight = 6;
+            world[9].binToLeft = 8;                                         world[9].binToRight = 10;
+            world[9].binToLowerLeft = 12;   world[9].binToBottom = 13;      world[9].binToLowerRight = 14;
+
+            world[10].binToUpperLeft = 5;   world[10].binToTop = 6;         world[10].binToUpperRight = 7;
+            world[10].binToLeft = 9;                                        world[10].binToRight = 11;
+            world[10].binToLowerLeft = 13;  world[10].binToBottom = 14;     world[10].binToLowerRight = 15;
+
+            world[11].binToUpperRight = world[11].binToLowerRight = -1;
+            world[11].binToUpperLeft = 6;   world[11].binToTop = 7;
+            world[11].binToLeft = 10;
+            world[11].binToLowerLeft = 14;  world[11].binToBottom = 15;
+
+            world[12].binToUpperLeft = world[12].binToLowerLeft = world[12].binToLowerRight = -1;
+            world[12].binToTop = 8;                                         world[12].binToUpperRight = 9;
+                                                                            world[12].binToRight = 13;
+
+            world[13].binToLowerLeft = world[13].binToLowerRight = -1;
+            world[13].binToUpperLeft = 8;   world[13].binToTop = 9;         world[13].binToUpperRight = 10;
+            world[13].binToLeft = 12;                                       world[13].binToRight = 14;
+
+            world[14].binToLowerLeft = world[14].binToLowerRight = -1;
+            world[14].binToUpperLeft = 9;   world[14].binToTop = 10;        world[14].binToUpperRight = 11;
+            world[14].binToLeft = 13;                                       world[14].binToRight = 15;
+
+            world[15].binToUpperRight = world[15].binToLowerRight = world[15].binToLowerLeft = -1;
+            world[15].binToUpperLeft = 10;	world[15].binToTop = 11;
+            world[15].binToLeft = 14;
+		break;
     }
 
     particle_t *particles = (particle_t*) malloc( n * sizeof(particle_t) );
