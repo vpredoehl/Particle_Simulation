@@ -23,38 +23,6 @@ short binsPerRow, binsPerCol;
 short particle_t::cnt = 0;
 
 
-NeighborGhostZone neighborGZLayout
-  {
-    { 2,        // ghost zones for two bins
-                // the following vector is enumerated in bin order
-      {
-        {   // neighbor regions for bin 0
-            {1, GhostZoneRegion::left}    
-        },
-        {   // neighbor regions for bin 1
-            {0, GZR::right}
-        }
-      }
-    },
-    { 4,        // ghost zones for four bins
-                // the following vector is enumerated in bin order
-      {    
-        {   // neighbor regions for bin 0
-            {1, GZR::left}, {2, GZR::top}, {3,GZR::topLeft}
-        },
-        {   // neighbor regions for bin 1
-            {0, GZR::right}, {2,GZR::topRight}, {3, GZR::top}
-        },
-        {   // neighbor regions for bin 2
-            {0, GZR::bottom}, {1, GZR::bottomLeft}, {3, GZR::left}
-        },
-        {   // neighbor regions for bin 3
-            {0, GZR::bottomRight}, {1, GZR::bottom}, {2, GZR::right}
-        }
-      }
-    }
-  };
-
 GhostZoneListByThread binGZList   // enumerates each bin's ghost zone regions
     {
             //      layout for two bins

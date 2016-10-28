@@ -37,7 +37,6 @@ int main( int argc, char **argv )
     
 	extern unsigned long numThreads;
     extern short binsPerRow, binsPerCol;
-    extern NeighborGhostZone neighborGZLayout;
     extern GhostZoneListByThread binGZList;
     extern vector<NeighborRegionList> nrl;
     extern BinGhostZoneList bgz; 
