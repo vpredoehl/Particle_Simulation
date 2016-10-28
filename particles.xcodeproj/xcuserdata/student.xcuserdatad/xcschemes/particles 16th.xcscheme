@@ -57,11 +57,11 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-th 8"
+            argument = "-th 16"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-n 50"
+            argument = "-n 30"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
