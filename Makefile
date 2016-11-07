@@ -3,14 +3,14 @@
 #
 # Intel Compilers are loaded by default; for other compilers please check the module list
 #
-CC = clang++
+CC = icpc
 MPCC = mpicxx
 OPENMP = -openmp
-CFLAGS = -O3 -g -std=c++11 -stdlib=libc++
-LIBS = 
+CFLAGS = -g -std=c++11
+LIBS =
 
 
-TARGETS = serial #pthreads openmp mpi autograder
+TARGETS = serial pthreads openmp mpi autograder
 
 all:	$(TARGETS)
 
