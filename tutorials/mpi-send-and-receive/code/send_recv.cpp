@@ -8,11 +8,13 @@
 // to process 1.
 //
 #include <mpi.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
  
 #include "MPIntf.h"
+
+using std::cout;
+using std::endl;
 
 void PrintValue(int v)
 {
@@ -25,8 +27,8 @@ int main(int argc, char** argv) {
 	int world_size = mp.size();
 	int world_rank = mp.rank();
 
-printf("World size: %i\n", world_size);
-printf("World rank: %i\n", world_rank);
+	cout << "World size: " << world_size << endl;
+	cout << "World rank: " << world_rank << endl;
 
   // We are assuming at least 2 processes for this task
   //if (world_size < 2) {
