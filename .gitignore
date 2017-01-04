@@ -21,3 +21,10 @@ openmp
 particles.session
 pthreads
 serial
+
+hello
+linked
+matmul
+pi
+prod_cons
+
