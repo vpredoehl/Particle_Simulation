@@ -1,8 +1,8 @@
 # for gcc compiler on linux
 # copy to make.def
-CC          = cc
+CC          = gcc-6
 CLINKER     = $(CC)
-OPTFLAGS    = -fopenmp
+OPTFLAGS    = -fopenmp -std=c99
 LIBS        =
 
 CFLAGS	  = $(OPTFLAGS)

@@ -1,6 +1,6 @@
 # 
 
-include make.def
+include gcc.def
 
 EXES=hello$(EXE) pi$(EXE) matmul$(EXE) prod_cons$(EXE) linked$(EXE)
 
