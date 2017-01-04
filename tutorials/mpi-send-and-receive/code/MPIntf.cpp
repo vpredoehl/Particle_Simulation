@@ -1,7 +1,7 @@
 
+#include <mpi.h>
 #include "MPIntf.h"
 
-#include <mpi.h>
 
 //using namespace CSE856;
 
