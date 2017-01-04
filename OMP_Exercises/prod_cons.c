@@ -7,7 +7,7 @@
 **  HISTORY: Written by Tim Mattson, April 2007.
 */
 #include "omp.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #define N        10000
