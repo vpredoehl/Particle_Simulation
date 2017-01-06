@@ -18,7 +18,10 @@ using std::endl;
 
 int main(int argc, char** argv) 
 {
+		// define the function call
 	CSE856::FunctCall<CSE856::PrintValueFunctType, int> pv	{	CSE856::PrintValue	};
+
+		// define MPI world
 	using MPDemo = CSE856::MPIntf<decltype(pv)>;
 	MPDemo mp { pv };
 
@@ -30,12 +33,11 @@ int main(int argc, char** argv)
 
     	MPDemo::CommType<int> number;
 
-    	number = -1;
+    	if(world_rank == 0)	number = -1;
     	mp << number;
-	mp >> number;
-	if(world_rank == 1)	CSE856::PrintValue(number);
-	//mp >> MPDemo::sendtask< 
-    	//mp >> MPDemo::setparalleltask<CSE856::PrintValueTask<int>>(CSE856::PrintValue) >>  number;
+	//mp >> number;
+	//if(world_rank == 1)	CSE856::PrintValue(number);
+	mp >> number >> MPDemo::runtask<int>(number);
 
     	return 0;
 }

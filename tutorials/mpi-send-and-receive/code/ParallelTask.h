@@ -11,7 +11,7 @@ namespace CSE856
 		public:
 			FunctCall(prototype<args...> f) : fn{f}  {}
 
-			virtual void operator()(const args&... a)	{	}
+        virtual void operator()(const args&... a)	{       fn(a...);  }
 	};
 
 	
