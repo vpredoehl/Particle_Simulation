@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0898F2721E1DCB92004FD0CB /* MPIntf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0898F26F1E1DCB92004FD0CB /* MPIntf.cpp */; };
 		0898F2731E1DCB92004FD0CB /* send_recv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0898F2711E1DCB92004FD0CB /* send_recv.cpp */; };
+		0898F27A1E1F7855004FD0CB /* ParallelTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0898F2781E1F7855004FD0CB /* ParallelTask.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,9 +25,10 @@
 
 /* Begin PBXFileReference section */
 		0898F25C1E1DBC72004FD0CB /* send_recv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = send_recv; sourceTree = BUILT_PRODUCTS_DIR; };
-		0898F26F1E1DCB92004FD0CB /* MPIntf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MPIntf.cpp; path = code/MPIntf.cpp; sourceTree = SOURCE_ROOT; };
 		0898F2701E1DCB92004FD0CB /* MPIntf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MPIntf.h; path = code/MPIntf.h; sourceTree = SOURCE_ROOT; };
 		0898F2711E1DCB92004FD0CB /* send_recv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = send_recv.cpp; path = code/send_recv.cpp; sourceTree = SOURCE_ROOT; };
+		0898F2781E1F7855004FD0CB /* ParallelTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParallelTask.cpp; path = code/ParallelTask.cpp; sourceTree = SOURCE_ROOT; };
+		0898F2791E1F7855004FD0CB /* ParallelTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParallelTask.h; path = code/ParallelTask.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,11 +61,28 @@
 		0898F25E1E1DBC72004FD0CB /* send_recv */ = {
 			isa = PBXGroup;
 			children = (
-				0898F26F1E1DCB92004FD0CB /* MPIntf.cpp */,
-				0898F2701E1DCB92004FD0CB /* MPIntf.h */,
-				0898F2711E1DCB92004FD0CB /* send_recv.cpp */,
+				0898F27C1E1F7864004FD0CB /* Headers */,
+				0898F27B1E1F785D004FD0CB /* Source */,
 			);
 			path = send_recv;
+			sourceTree = "<group>";
+		};
+		0898F27B1E1F785D004FD0CB /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				0898F2711E1DCB92004FD0CB /* send_recv.cpp */,
+				0898F2781E1F7855004FD0CB /* ParallelTask.cpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		0898F27C1E1F7864004FD0CB /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				0898F2701E1DCB92004FD0CB /* MPIntf.h */,
+				0898F2791E1F7855004FD0CB /* ParallelTask.h */,
+			);
+			name = Headers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -124,8 +142,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0898F2721E1DCB92004FD0CB /* MPIntf.cpp in Sources */,
 				0898F2731E1DCB92004FD0CB /* send_recv.cpp in Sources */,
+				0898F27A1E1F7855004FD0CB /* ParallelTask.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
