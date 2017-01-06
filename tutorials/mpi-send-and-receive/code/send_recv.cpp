@@ -31,12 +31,11 @@ int main(int argc, char** argv)
 	cout << "World size: " << world_size << endl;
 	cout << "World rank: " << world_rank << endl;
 
-    	MPDemo::CommType<int> number;
+    	//MPDemo::CommType<int> number;
+	int number = 0;
 
     	if(world_rank == 0)	number = -1;
     	mp << number;
-	//mp >> number;
-	//if(world_rank == 1)	CSE856::PrintValue(number);
 	mp >> number >> MPDemo::runtask<int>(number);
 
     	return 0;

@@ -16,21 +16,9 @@ namespace CSE856
 		int rank() const	{	return world_rank;	}
 		int size() const	{	return world_size;	}
 
-                // wrapper class for built-in communication types
-            template<class T> class CommType
-            {
-                T v;
-            public:
-            
-                T value() const {   return v;   }
-                operator T() const  {   return v;   }
-                const T* operator&() const    {   return &v;  }
-                T* operator&()    {   return &v;  }
-                
-                CommType& operator=(T v)    {   CommType::v = v;  return *this;   }
-            };
-            
-            template<class T, template<class> class CT>   MPIntf& operator<<(const CT<T> &v);
+            template<class T>   MPIntf& operator<<(const T&);	// send built-in types
+            template<class T, template<class> class CT>   MPIntf& operator<<(const CT<T>&);	// CT - container type ( vector, list, etc. )
+
             template<class T>   MPIntf& operator>>(T &v);
             
             template<class... args> struct runtask
