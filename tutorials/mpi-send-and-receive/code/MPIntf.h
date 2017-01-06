@@ -1,20 +1,23 @@
+#include "ParallelTask.h"
+#include <utility>
+
 namespace CSE856
 {
-	class MPIntf
+    	template<class... TASK>
+	class MPIntf : protected TASK...
 	{
         	int world_rank, world_size;
 
 	public:
-		MPIntf();
+		MPIntf(const TASK&...);
 		~MPIntf();
 
 			// accessor methods
 		int rank() const	{	return world_rank;	}
 		int size() const	{	return world_size;	}
 
-                // wrapper class for communication types
-            template<class T>
-            class CommType
+                // wrapper class for built-in communication types
+            template<class T> class CommType
             {
                 T v;
             public:
@@ -27,57 +30,21 @@ namespace CSE856
                 CommType& operator=(T v)    {   CommType::v = v;  return *this;   }
             };
             
-            template<class T>   MPIntf& operator<<(const CommType<T> &v);
-            template<class T>   MPIntf& operator>>(CommType<T> &v);
+            template<class T, template<class> class CT>   MPIntf& operator<<(const CT<T> &v);
+            template<class T>   MPIntf& operator>>(T &v);
             
-
-        private:
-            template<class T>
-            using ParallelTask = void(*)(T);
-
-            const void* parallelTask;
-                // stream modifier to set parallel task
-                
-        public:
-            
-            template<class T> class setparalleltask
+            template<class T, class... args> struct sendtask
             {
-                ParallelTask<T> task;
-            public:
-                setparalleltask(ParallelTask<T> t) {   task = t;   }
-                operator const void*() const {   return reinterpret_cast<const void*>(&task);    }
+                sendtask(const args&... a) {   T::operator()(a...);   }
             };
             
 
-            template<class T> MPIntf& operator>>(const setparalleltask<T> &t)
+            template<class T> MPIntf& operator>>(const sendtask<T> &t)
             {
-                parallelTask = t;
                 return *this;
             }
 	};
 
 }
 
-
-// define template operators here to remove clutter from interface
-template<class T>
-CSE856::MPIntf& CSE856::MPIntf::operator<<(const CSE856::MPIntf::CommType<T> &v)
-{
-    if(world_rank == 0)    MPI_Send(&v, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-    return *this;
-}
-
-template<class T>
-CSE856::MPIntf& CSE856::MPIntf::operator>>(CSE856::MPIntf::CommType<T> &v)
-{
-    if(world_rank != 0)
-    {
-        MPI_Recv(&v, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        
-            // run task 
-        if(parallelTask)
-            (*reinterpret_cast<const ParallelTask<T>*>(parallelTask))(v);
-    }
-    return *this;
-}
-
+#include "MPIntf.cpp"

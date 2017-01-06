@@ -16,13 +16,11 @@
 using std::cout;
 using std::endl;
 
-void PrintValue(int v)
+int main(int argc, char** argv) 
 {
-    std::cout << "Process 1 received number " << v << " from process 0\n";
-}
-
-int main(int argc, char** argv) {
-	CSE856::MPIntf mp;
+	CSE856::FunctCall<CSE856::PrintValueTask<int>, int> pv	{	CSE856::PrintValue	};
+	using MPDemo = CSE856::MPIntf<CSE856::FunctCall<decltype(pv)>>;
+	MPDemo mp { pv };
 
 	int world_size = mp.size();
 	int world_rank = mp.rank();
@@ -30,17 +28,13 @@ int main(int argc, char** argv) {
 	cout << "World size: " << world_size << endl;
 	cout << "World rank: " << world_rank << endl;
 
-  // We are assuming at least 2 processes for this task
-  //if (world_size < 2) {
-    ////fprintf(stderr, "World size must be greater than 1 for %s\n", argv[0]);
-    ////MPI_Abort(MPI_COMM_WORLD, 1);
-  //}
+    	MPDemo::CommType<int> number;
 
-    CSE856::MPIntf::CommType<int> number;
+    	number = -1;
+    	mp << number;
+	mp >> number;
+	if(world_rank == 1)	CSE856::PrintValue(number);
+    	//mp >> MPDemo::setparalleltask<CSE856::PrintValueTask<int>>(CSE856::PrintValue) >>  number;
 
-    number = -1;
-    mp << number;
-    mp >> CSE856::MPIntf::setparalleltask<int>(PrintValue) >>  number;
-
-    return 0;
+    	return 0;
 }

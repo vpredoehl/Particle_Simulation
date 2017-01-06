@@ -4,11 +4,13 @@ CFLAGS=-std=c++11 -g
 
 all: ${EXECS}
 
-send_recv: send_recv.o MPIntf.o 
+send_recv: send_recv.o ParallelTask.o
 	${MPICC} -o $@ $^
 
+ParallelTask.cpp:	ParallelTask.h
+
 send_recv.o:	MPIntf.h send_recv.cpp
-MPIntf.o:	MPIntf.h MPIntf.cpp
+ParallelTask.o:	ParallelTask.cpp
 
 %.o : %.c
 	$(MPICC) -c $(CFLAGS)  $<
