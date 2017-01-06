@@ -15,6 +15,7 @@ CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator<<(const T &v)
        	if(world_rank == 0)
 	{
 	    if(typeid(T) == typeid(int))	MPI_Send(&v, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+	    else if(typeid(T) == typeid(float))	MPI_Send(&v, 1, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
 	}
 	    
 	return *this;

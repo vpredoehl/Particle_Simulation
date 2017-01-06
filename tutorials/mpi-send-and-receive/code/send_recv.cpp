@@ -19,11 +19,12 @@ using std::endl;
 int main(int argc, char** argv) 
 {
 		// define the function call
-	CSE856::FunctCall<CSE856::PrintValueFunctType, int> pv	{	CSE856::PrintValue	};
+	CSE856::FunctCall<CSE856::PrintValueFunctType, int> pvInt	{	CSE856::PrintValue	};
+	CSE856::FunctCall<CSE856::PrintValueFunctType, float> pvFloat	{	CSE856::PrintValue	};
 
 		// define MPI world
-	using MPDemo = CSE856::MPIntf<decltype(pv)>;
-	MPDemo mp { pv };
+	using MPDemo = CSE856::MPIntf<decltype(pvInt), decltype(pvFloat)>;
+	MPDemo mp { pvInt, pvFloat };
 
 	int world_size = mp.size();
 	int world_rank = mp.rank();
@@ -33,10 +34,14 @@ int main(int argc, char** argv)
 
     	//MPDemo::CommType<int> number;
 	int number = 0;
+	float n2 = 0.0;
 
-    	if(world_rank == 0)	number = -1;
-    	mp << number;
-	mp >> number >> MPDemo::runtask<int>(number);
+    	if(world_rank == 0)	{	number = -1;	n2 = 7.77;	}
+    	mp << number << n2;
+	mp >> number >> n2 >> MPDemo::runtask<int>(number) >> MPDemo::runtask<float>(n2);
+
+    	mp << number << n2;
+	mp >> number >> MPDemo::runtask<int>(number) >> n2 >> MPDemo::runtask<float>(n2);
 
     	return 0;
 }
