@@ -1,19 +1,22 @@
 namespace CSE856
 {
-	template<class PROTOTYPE, class... ARGS>
+	template<template<class> class proto, class... args>
+	using TaskProto = proto<args...>;
+
+	template<template<class> class prototype, class... args>
 	class FunctCall
 	{
-		PROTOTYPE fn;
+		prototype<args...> fn;
 
 		public:
-			FunctCall(PROTOTYPE f) : fn{f}  {}
+			FunctCall(prototype<args...> f) : fn{f}  {}
 
-			virtual void operator()(const ARGS&... args)	{	}
+			virtual void operator()(const args&... a)	{	}
 	};
 
- 	template<class T>
-        using PrintValueTask = void(*)(T);
-
+	
 	void PrintValue(int v);
+
+	template<class T> using PrintValueFunctType = void (*)(T);
 }
 

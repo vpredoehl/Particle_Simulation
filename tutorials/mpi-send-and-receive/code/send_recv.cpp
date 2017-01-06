@@ -18,8 +18,8 @@ using std::endl;
 
 int main(int argc, char** argv) 
 {
-	CSE856::FunctCall<CSE856::PrintValueTask<int>, int> pv	{	CSE856::PrintValue	};
-	using MPDemo = CSE856::MPIntf<CSE856::FunctCall<decltype(pv)>>;
+	CSE856::FunctCall<CSE856::PrintValueFunctType, int> pv	{	CSE856::PrintValue	};
+	using MPDemo = CSE856::MPIntf<decltype(pv)>;
 	MPDemo mp { pv };
 
 	int world_size = mp.size();
@@ -34,6 +34,7 @@ int main(int argc, char** argv)
     	mp << number;
 	mp >> number;
 	if(world_rank == 1)	CSE856::PrintValue(number);
+	//mp >> MPDemo::sendtask< 
     	//mp >> MPDemo::setparalleltask<CSE856::PrintValueTask<int>>(CSE856::PrintValue) >>  number;
 
     	return 0;
