@@ -43,5 +43,7 @@ int main(int argc, char** argv)
     	mp << number << n2;
 	mp >> number >> MPDemo::runtask<int>(number) >> n2 >> MPDemo::runtask<float>(n2);
 
+	cout << "direct call\n";
+	mp(number);	mp(n2);
     	return 0;
 }

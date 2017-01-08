@@ -4,7 +4,7 @@
 namespace CSE856
 {
     	template<class... TASK>
-	class MPIntf : protected TASK...
+	class MPIntf : public TASK...
 	{
         	int world_rank, world_size;
 
