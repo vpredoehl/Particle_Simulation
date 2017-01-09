@@ -1,26 +1,27 @@
+#include <iostream>
 #include <tuple>
 
 namespace CSE856
 {
-	template<template<class> class proto, class... args>
-	using TaskProto = proto<args...>;
+	using std::tuple;
 
 	template<template<class> class prototype, class... args>
 	class FunctCall
 	{
-		prototype<args...> fn;
-		std::tuple<args...> params;
+		prototype<tuple<args...>> fn;
 
 		public:
-			FunctCall(prototype<args...> f) : fn{f}  {}
+			FunctCall(prototype<tuple<args...>> f) : fn{f}  {}
 
-		        virtual void operator()(const args&... a)	{       fn(a...);  }
+		        virtual void operator()(const tuple<args...>& a)	{       fn(a);  }
 	};
 
 	
-	void PrintValue(int v);
-	void PrintValue(float v);
+	template<class... T>	void PrintValue(tuple<T...> v)
+	{
+    		std::cout << "Process 1 received number " << std::get<0>(v) << " from process 0 - tuple size: " << std::tuple_size<decltype(v)>::value << std::endl;
+	}
 
-	template<class T> using PrintValueFunctType = void (*)(T);
+	template<class T> using TaskFunct = void (*)(T);
 }
 

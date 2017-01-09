@@ -19,12 +19,13 @@ using std::endl;
 int main(int argc, char** argv) 
 {
 		// define the function call
-	CSE856::FunctCall<CSE856::PrintValueFunctType, int> pvInt	{	CSE856::PrintValue	};
-	CSE856::FunctCall<CSE856::PrintValueFunctType, float> pvFloat	{	CSE856::PrintValue	};
+	CSE856::FunctCall<CSE856::TaskFunct, int> pvInt	{	CSE856::PrintValue	};
+	CSE856::FunctCall<CSE856::TaskFunct, float> pvFloat	{	CSE856::PrintValue	};
+	CSE856::FunctCall<CSE856::TaskFunct, int, float> pvIntFloat	{	CSE856::PrintValue	};
 
 		// define MPI world
-	using MPDemo = CSE856::MPIntf<decltype(pvInt), decltype(pvFloat)>;
-	MPDemo mp { pvInt, pvFloat };
+	using MPDemo = CSE856::MPIntf<decltype(pvInt), decltype(pvFloat), decltype(pvIntFloat)>;
+	MPDemo mp { pvInt, pvFloat, pvIntFloat };
 
 	int world_size = mp.size();
 	int world_rank = mp.rank();
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
 	mp >> number >> MPDemo::runtask<int>(number) >> n2 >> MPDemo::runtask<float>(n2);
 
 	cout << "direct call\n";
-	mp(number);	mp(n2);
+	mp(std::tuple<int>(number));	mp(std::tuple<float>(n2));
+	mp(std::tuple<int, float>{number, n2});
     	return 0;
 }

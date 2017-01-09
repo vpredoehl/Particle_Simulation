@@ -31,7 +31,7 @@ namespace CSE856
             template<class... args> MPIntf& operator>>(const runtask<args...> &t)
             {
 		if(world_rank == 1)
-			(*this)(std::get<0>(t.params));   
+			(*this)(t.params);
                 return *this;
             }
 	};
