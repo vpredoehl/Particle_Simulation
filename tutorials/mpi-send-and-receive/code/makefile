@@ -9,7 +9,7 @@ send_recv: send_recv.o ParallelTask.o
 
 ParallelTask.cpp:	ParallelTask.h
 
-send_recv.o:	send_recv.cpp MPIntf.cpp MPIntf.h ParallelTask.h
+send_recv.o:	send_recv.cpp MPIntf.cpp MPIntf.h ParallelTask.h PrintValue.h
 	$(MPICC) -c $(CFLAGS)  $<
 ParallelTask.o:	ParallelTask.cpp ParallelTask.h
 	$(MPICC) -c $(CFLAGS)  $<

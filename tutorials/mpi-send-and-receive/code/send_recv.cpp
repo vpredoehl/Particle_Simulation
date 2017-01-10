@@ -12,6 +12,7 @@
 #include <iostream>
  
 #include "MPIntf.h"
+#include "PrintValue.h"
 
 using std::cout;
 using std::endl;
@@ -19,12 +20,14 @@ using std::endl;
 int main(int argc, char** argv) 
 {
 		// define the function call
-	FunctCall<TaskFunct, int> pvInt	{	PrintValue	};
-	FunctCall<TaskFunct, float> pvFloat	{	PrintValue	};
+	FunctCall<PrintTaskProto, int> pvInt	{	PrintValue	};
+	FunctCall<PrintTaskProto, float> pvFloat	{	PrintValue	};
+
+	struct PrintValue pv;	// struct - quality to resolve shadow of PrintValue function
 
 		// define MPI world
-	using MPDemo = MPIntf<decltype(pvInt), decltype(pvFloat)>;
-	MPDemo mp { pvInt, pvFloat};
+	using MPDemo = MPIntf<decltype(pvFloat), decltype(pv)>;
+	MPDemo mp { pvFloat, pv };
 
 	int world_size = mp.size();
 	int world_rank = mp.rank();
@@ -43,8 +46,5 @@ int main(int argc, char** argv)
     	mp << number << n2;
 	mp >> number >> MPDemo::runtask<int>(number) >> n2 >> MPDemo::runtask<float>(n2);
 
-	//cout << "direct call\n";
-	//mp(std::tuple<int>(number));	mp(std::tuple<float>(n2));
-	//mp(std::tuple<int, float>{number, n2});
     	return 0;
 }

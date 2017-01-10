@@ -1,30 +1,31 @@
+#ifndef __PARALLEL_TASK
+#define __PARALLEL_TASK
+
 #include <iostream>
 #include <tuple>
 
 using std::tuple;
 
+	// forward task to C function
 template<template<class> class ProtoType, class T>
 class FunctCall
 {
-	ProtoType<T> fn;
+	ProtoType<T> fn = nullptr;
 
 	public:
+		FunctCall()	{}
 		FunctCall(ProtoType<T> f) : fn{f}  {}
 
 	        virtual void operator()(const T& a)	{       fn(a);  }
 };
 
-
-template<class T>	void PrintValue(T v)
+	// function object to call task
+template<class T>
+struct Task
 {
-	std::cout << "Process 1 received number " << v << " from process 0\n";
-}
+	virtual void operator()(T) = 0;
+};
 
-template<class T1, class T2>	void Print2Values(tuple<T1,T2> v)
-{
-	std::cout << "\nProcess 1 received number " << std::get<0>(v) << " from process 0 - tuple size: " << std::tuple_size<decltype(v)>::value << std::endl;
-    	std::cout << "Process 1 received second number " << std::get<1>(v) << " from process 0 - tuple size: " << std::tuple_size<decltype(v)>::value << std::endl << std::endl;
-}
 
-template<class T> using TaskFunct = void (*)(T);
+#endif
 
