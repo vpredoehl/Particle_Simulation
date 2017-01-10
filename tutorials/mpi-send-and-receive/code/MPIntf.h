@@ -21,17 +21,19 @@ namespace CSE856
 
             template<class T>   MPIntf& operator>>(T &v);
             
-            template<class... args> struct runtask
-            {
-		std::tuple<args...> params;
-                runtask(const args&... a) : params{a...}	{}
-            };
-            
+	    template<class T> struct runtask
+	    {
+	    	T val;
+		runtask(const T &t) : 	val{t}	{}
 
-            template<class... args> MPIntf& operator>>(const runtask<args...> &t)
+		operator T() const	{	return val;	}
+	    };
+
+
+            template<class T> MPIntf& operator>>(const runtask<T> &t)
             {
 		if(world_rank == 1)
-			(*this)(t.params);
+			(*this)(t);
                 return *this;
             }
 	};
