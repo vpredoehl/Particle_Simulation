@@ -4,13 +4,13 @@
 
 
 template<class... TASK> template<class T, template<class> class CT>
-CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator<<(const CT<T> &v)	// CT - container type ( vector, list, etc. )
+MPIntf<TASK...>& MPIntf<TASK...>::operator<<(const CT<T> &v)	// CT - container type ( vector, list, etc. )
 {
 	return *this;
 }
 
 template<class... TASK> template<class T>
-CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator<<(const T &v)
+MPIntf<TASK...>& MPIntf<TASK...>::operator<<(const T &v)
 {
        	if(world_rank == 0)
 	{
@@ -23,7 +23,7 @@ CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator<<(const T &v)
 
 
 template<class... TASK> template<class T>
-CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator>>(T &v)
+MPIntf<TASK...>& MPIntf<TASK...>::operator>>(T &v)
 {
     if(world_rank != 0)
     {
@@ -33,7 +33,7 @@ CSE856::MPIntf<TASK...>& CSE856::MPIntf<TASK...>::operator>>(T &v)
 }
 
 template<class... TASK>
-CSE856::MPIntf<TASK...>::MPIntf(const TASK&... t)
+MPIntf<TASK...>::MPIntf(const TASK&... t)
 	: TASK(t)...
 {
   MPI_Init(NULL, NULL);
@@ -42,7 +42,7 @@ CSE856::MPIntf<TASK...>::MPIntf(const TASK&... t)
 }
 
 template<class... TASK>
-CSE856::MPIntf<TASK...>::~MPIntf()
+MPIntf<TASK...>::~MPIntf()
 {
   MPI_Finalize();
 }
