@@ -1,5 +1,5 @@
 #include "ParallelTask.h"
-#include <utility>
+#include <memory>
 
 template<class... TASK>
 class MPIntf : public TASK...
