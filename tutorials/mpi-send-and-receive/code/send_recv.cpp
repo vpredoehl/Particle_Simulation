@@ -22,12 +22,13 @@ int main(int argc, char** argv)
 		// define the function call
 	FunctCall<PrintTaskProto, int> pvInt	{	PrintValue	};
 	FunctCall<PrintTaskProto, float> pvFloat	{	PrintValue	};
+	FunctCallContainer<PrintContainerProto, int, std::vector> pvCont	{	PrintValue	};
 
 	struct PrintValue pv;	// struct - quality to resolve shadow of PrintValue function
 
 		// define MPI world
-	using MPDemo = MPIntf<decltype(pvFloat), decltype(pv)>;
-	MPDemo mp { pvFloat, pv };
+	using MPDemo = MPIntf<decltype(pvFloat), decltype(pv), decltype(pvCont)>;
+	MPDemo mp { pvFloat, pv, pvCont };
 
 	int world_size = mp.size();
 	int world_rank = mp.rank();
@@ -38,8 +39,13 @@ int main(int argc, char** argv)
     	//MPDemo::CommType<int> number;
 	int number = 0;
 	float n2 = 0.0;
+	std::vector<int> sendVec { 1,3,5,7,9 }, recvVec;
 
     	if(world_rank == 0)	{	number = -1;	n2 = 7.77;	}
+
+	mp << sendVec;
+	mp >> recvVec >> MPDemo::runcontainertask<int, std::vector>(recvVec);
+
     	mp << number << n2;
 	mp >> number >> n2 >> MPDemo::runtask<int>(number) >> MPDemo::runtask<float>(n2);
 

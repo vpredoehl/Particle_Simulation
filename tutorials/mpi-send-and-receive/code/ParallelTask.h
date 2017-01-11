@@ -19,6 +19,17 @@ class FunctCall
 	        virtual void operator()(const T& a)	{       fn(a);  }
 };
 
+template<template<template<class, class> class CT, class T> class ProtoType, class T, template<class, class = std::allocator<T>> class CT>
+class FunctCallContainer
+{
+	ProtoType<CT, T>	fn;
+
+	public:
+		FunctCallContainer(ProtoType<CT,T> f)	: fn{f}	{}
+
+		virtual void operator()(const CT<T> &c)	{	fn(c);	}
+};
+
 	// function object to call task
 template<class T>
 struct Task
