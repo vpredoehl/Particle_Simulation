@@ -34,6 +34,7 @@ MPIntf<TASK...>& MPIntf<TASK...>::operator>>(CT<T> &v)
 
 	if(world_rank != 0)
 	{
+		v.clear();
 		(*this) >> numItems;
 		for(int i = 0; i<numItems; ++i)
 		{
