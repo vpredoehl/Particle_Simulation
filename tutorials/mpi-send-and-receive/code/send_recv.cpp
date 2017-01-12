@@ -39,11 +39,15 @@ int main(int argc, char** argv)
 	int number = 0;
 	float n2 = 0.0;
 	std::vector<int> sendVec { 1,3,5,7,9 }, recvVec;
+	std::vector<int> applyVec { -1,-3,-5,-7,-9 };
 
     	if(world_rank == 0)	{	number = -1;	n2 = 7.77;	}
 
 	mp << sendVec;
 	mp >> recvVec >> MPIDemo::runcontainertask<int, std::vector>(recvVec);
+
+	mp << applyVec;
+	mp >> recvVec >> MPIDemo::Apply<MPITask::ProtoTypeForContainer, int, std::vector>(MPITask::PrintValue, recvVec);
 
     	mp << number << n2;
 	mp >> number >> n2 >> MPIDemo::runtask<int>(number) >> MPIDemo::runtask<float>(n2);

@@ -22,6 +22,15 @@ public:
         template<class T>   MPIntf& operator>>(T &v);
         template<class T, template<class, class> class CT>   MPIntf& operator>>(CT<T, std::allocator<T>>&);
            
+	template<template<template<class, class> class CT, class T> class ProtoType, class T, template<class, class = std::allocator<T>> class CT>
+	struct Apply
+	{
+		ProtoType<CT, T> fn;
+		CT<T> vals;
+
+		Apply(ProtoType<CT, T> fn, const CT<T> &c) : fn{fn}, vals{c}	{}
+	};
+
 	template<class T> struct runtask
 	{
 	    T val;
@@ -35,6 +44,13 @@ public:
 		CT<T, std::allocator<T>> c;
 		runcontainertask(const CT<T, std::allocator<T>> &c) : c{c}	{}
 	};
+
+	template<template<template<class, class> class CT, class T> class ProtoType, class T, template<class, class = std::allocator<T>> class CT>
+	MPIntf& operator>>(const Apply<ProtoType, T, CT> &a)
+	{
+		if(world_rank != 0)	a.fn(a.vals);		
+		return *this;
+	}
 
         template<class T> MPIntf& operator>>(const runtask<T> &t)
         {
