@@ -5,6 +5,8 @@
 tutorials/*
 *.out
 *.swp
+*.xcuserstate
+xcdebugger
 
 !tutorials/mpi-send-and-receive
 send_recv
